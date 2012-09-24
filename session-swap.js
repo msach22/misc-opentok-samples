@@ -10,21 +10,22 @@ var sessions = {
 };
 
 // Data structure to hold onto subscriber objects
-var mySubscribers = {
+var subscribers = {
 	"1" : {},
 	"2" : {}
 };
 
+// Attach event handlers for each session
 for (var sessionNum in sessions) {
 	if(sessions.hasOwnProperty(sessionNum)) {
 		var thisSession = sessions[sessionNum];
 
-		// Attach default handlers
-		thisSession.addEventListener("sessionConnected", function(sessionNum) {
-			return function(event) {
-				sessionConnectedHandler(event, sessionNum);
-			};
-		}(sessionNum));
+		thisSession.addEventListener("sessionConnected", parameterizeFunc(sessionConnectedHandler, sessionNum));
+		//thisSession.addEventListener("sessionConnected", function(sessionNum) {
+		//	return function(event) {
+		//		sessionConnectedHandler(event, sessionNum);
+		//	};
+		//}(sessionNum));
 		thisSession.addEventListener("sessionDisconnected", function(sessionNum) {
 			return function(event) {
 				sessionDisconnectedHandler(event, sessionNum);
@@ -40,22 +41,6 @@ for (var sessionNum in sessions) {
 				streamDestroyedHandler(event, sessionNum);
 			};
 		}(sessionNum));
-		//thisSession.addEventListener("sessionConnected", function(event) {
-		//	var thisSessionNum = sessionNum;
-		//	sessionConnectedHandler(event, thisSessionNum);
-		//});
-		//thisSession.addEventListener("sessionDisconnected", function(event) {
-		//	var thisSessionNum = sessionNum;
-		//	sessionDisconnectedHandler(event, thisSessionNum);
-		//});
-		//thisSession.addEventListener("streamCreated", function(event) {
-		//	var thisSessionNum = sessionNum;
-		//	streamCreatedHandler(event, thisSessionNum);
-		//});
-		//thisSession.addEventListener("streamDestroyed", function(event) {
-		//	var thisSessionNum = sessionNum;
-		//	streamDestroyedHandler(event, thisSessionNum);
-		//});
 	}
 }
 
@@ -75,9 +60,9 @@ function sessionDisconnectedHandler(event, sessionNum) {
 	// TODO: why is sessionNum "2" when it should be "1"?
 	event.preventDefault();
 	// TODO: clean up subscribers?
-	for (var streamId in mySubscribers[sessionNum]) {
-		if (mySubscribers[sessionNum].hasOwnProperty(streamId)) {
-			sessions[sessionNum].unsubscribe(mySubscribers[sessionNum][streamId]);
+	for (var streamId in subscribers[sessionNum]) {
+		if (subscribers[sessionNum].hasOwnProperty(streamId)) {
+			sessions[sessionNum].unsubscribe(subscribers[sessionNum][streamId]);
 		}
 	}
 
@@ -93,6 +78,8 @@ function streamCreatedHandler(event, sessionNum) {
 
 function streamDestroyedHandler(event, sessionNum) {
 }
+
+// Helper functions
 
 function publishToSession(sessionNum) {
 	var otherSessionNum;
@@ -119,7 +106,13 @@ function addStream(stream, sessionNum) {
 	var divId = stream.streamId;
 	div.setAttribute('id', divId);
 	$('#session'+sessionNum+' .subContainer').append(div);
-	mySubscribers[sessionNum][stream.streamId] = thisSession.subscribe(stream, divId);
+	subscribers[sessionNum][stream.streamId] = thisSession.subscribe(stream, divId);
+}
+
+function parameterizeFunc(handlerFunc, sugar) {
+	return function(event) {
+		handlerFunc(event, sugar);
+	};
 }
 
 // Document ready, attach click handlers
