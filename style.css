@@ -1,0 +1,14 @@
+#session1, #session2 {
+	border: 1px solid #000;
+	width: 40%;
+	padding: 10px;
+	display: inline-block;
+	margin: 10px 0;
+}
+
+.status.disconnected {
+	color: red;
+}
+.status.connected {
+	color: green;
+}

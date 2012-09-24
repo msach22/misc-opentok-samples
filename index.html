@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Session Swapping Test</title>
+		<link rel="stylesheet" href="style.css">
+		<script src="http://static.opentok.com/v0.91/js/TB.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+		<script src="config.js"></script>
+		<script src="session-swap.js"></script>
+	</head>
+	<body>
+		<h1>Session Swap Test</h1>
+		<p>In this example, we are testing moving a publisher from one session to another without removing it from the DOM.</p>
+		<div>
+			<h2>Publisher</h2>
+			<div id="pubContainer"></div>
+		</div>
+
+		<div id="session1">
+			<h2>Session 1</h2>
+			<button class="startBtn 1">Connect &amp; Publish</button>
+			<p>Status: <span class="status disconnected">disconnected</span></p>
+			<h3>Subscribers:</h3>
+			<div class="subContainer"></div>
+		</div>
+
+		<div id="session2">
+			<h2>Session 2</h2>
+			<button class="startBtn 2">Connect &amp; Publish</button>
+			<p>Status: <span class="status disconnected">disconnected</span></p>
+			<h3>Subscribers:</h3>
+			<div class="subContainer"></div>
+		</div>
+	</body>
+</html>
