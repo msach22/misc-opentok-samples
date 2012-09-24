@@ -11,7 +11,11 @@
 	</head>
 	<body>
 		<h1>Session Swap Test</h1>
-		<p>In this example, we are testing moving a publisher from one session to another without removing it from the DOM.</p>
+		<p>In this example, we test moving a publisher from one session to another without removing it from the DOM.</p>
+		<p>First connect to one of the two sessions below. The publisher will publish to whichever session is connected. Then open
+		this URL in another window (or from another machine) and connect to the other session. Nothing has changed yet. Now, change
+		either of them so that both windows are connected to the same session. You should be subscribing to each other on both
+		windows.</p>
 		<div>
 			<h2>Publisher</h2>
 			<div id="pubContainer"></div>

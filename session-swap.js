@@ -21,26 +21,8 @@ for (var sessionNum in sessions) {
 		var thisSession = sessions[sessionNum];
 
 		thisSession.addEventListener("sessionConnected", parameterizeFunc(sessionConnectedHandler, sessionNum));
-		//thisSession.addEventListener("sessionConnected", function(sessionNum) {
-		//	return function(event) {
-		//		sessionConnectedHandler(event, sessionNum);
-		//	};
-		//}(sessionNum));
-		thisSession.addEventListener("sessionDisconnected", function(sessionNum) {
-			return function(event) {
-				sessionDisconnectedHandler(event, sessionNum);
-			};
-		}(sessionNum));
-		thisSession.addEventListener("streamCreated", function(sessionNum) {
-			return function(event) {
-				streamCreatedHandler(event, sessionNum);
-			};
-		}(sessionNum));
-		thisSession.addEventListener("streamDestroyed", function(sessionNum) {
-			return function(event) {
-				streamDestroyedHandler(event, sessionNum);
-			};
-		}(sessionNum));
+		thisSession.addEventListener("sessionDisconnected", parameterizeFunc(sessionDisconnectedHandler, sessionNum));
+		thisSession.addEventListener("streamCreated", parameterizeFunc(streamCreatedHandler, sessionNum));
 	}
 }
 
@@ -53,20 +35,21 @@ function sessionConnectedHandler(event, sessionNum) {
 		addStream(event.streams[i], sessionNum);
 	}
 	
-	// TODO: set status in DOM
+	// set status in DOM
+	$('#session' + sessionNum + ' .status').toggleClass('disconnected').text('connected');
 }
 
 function sessionDisconnectedHandler(event, sessionNum) {
-	// TODO: why is sessionNum "2" when it should be "1"?
 	event.preventDefault();
-	// TODO: clean up subscribers?
+	// clean up subscribers
 	for (var streamId in subscribers[sessionNum]) {
 		if (subscribers[sessionNum].hasOwnProperty(streamId)) {
 			sessions[sessionNum].unsubscribe(subscribers[sessionNum][streamId]);
 		}
 	}
 
-	// TODO: set status in DOM
+	// set status in DOM
+	$('#session' + sessionNum + ' .status').toggleClass('disconnected').text('disconnected');
 }
 
 function streamCreatedHandler(event, sessionNum) {
@@ -76,23 +59,19 @@ function streamCreatedHandler(event, sessionNum) {
 	}
 }
 
-function streamDestroyedHandler(event, sessionNum) {
-}
-
 // Helper functions
 
 function publishToSession(sessionNum) {
 	var otherSessionNum;
+	// WARNING: using undocumented property session.connected
 	if (sessions[sessionNum].connected) {
 		console.log("Already connected to session " + sessionNum);
 	} else {
 		otherSessionNum = (sessionNum === "1") ? "2" : "1";
-		// WARNING: using undocumented property session.connected
 		if (sessions[otherSessionNum].connected) {
 			// Disconnect the other session
 			sessions[otherSessionNum].disconnect();
 		}
-		// TODO: does it matter if the asynchronous disconnect completes first?
 		sessions[sessionNum].connect(apiKey, configSessions[sessionNum].token);
 	}
 }

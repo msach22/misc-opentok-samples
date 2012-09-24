@@ -6,9 +6,9 @@
 	margin: 10px 0;
 }
 
+.status {
+	color: green;
+}
 .status.disconnected {
 	color: red;
-}
-.status.connected {
-	color: green;
 }
