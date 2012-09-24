@@ -20,22 +20,42 @@ for (var sessionNum in sessions) {
 		var thisSession = sessions[sessionNum];
 
 		// Attach default handlers
-		thisSession.addEventListener("sessionConnected", function(event) {
-			var thisSessionNum = sessionNum;
-			sessionConnectedHandler(event, thisSessionNum);
-		});
-		thisSession.addEventListener("sessionDisconnected", function(event) {
-			var thisSessionNum = sessionNum;
-			sessionDisconnectedHandler(event, thisSessionNum);
-		});
-		thisSession.addEventListener("streamCreated", function(event) {
-			var thisSessionNum = sessionNum;
-			streamCreatedHandler(event, thisSessionNum);
-		});
-		thisSession.addEventListener("streamDestroyed", function(event) {
-			var thisSessionNum = sessionNum;
-			streamDestroyedHandler(event, thisSessionNum);
-		});
+		thisSession.addEventListener("sessionConnected", function(sessionNum) {
+			return function(event) {
+				sessionConnectedHandler(event, sessionNum);
+			};
+		}(sessionNum));
+		thisSession.addEventListener("sessionDisconnected", function(sessionNum) {
+			return function(event) {
+				sessionDisconnectedHandler(event, sessionNum);
+			};
+		}(sessionNum));
+		thisSession.addEventListener("streamCreated", function(sessionNum) {
+			return function(event) {
+				streamCreatedHandler(event, sessionNum);
+			};
+		}(sessionNum));
+		thisSession.addEventListener("streamDestroyed", function(sessionNum) {
+			return function(event) {
+				streamDestroyedHandler(event, sessionNum);
+			};
+		}(sessionNum));
+		//thisSession.addEventListener("sessionConnected", function(event) {
+		//	var thisSessionNum = sessionNum;
+		//	sessionConnectedHandler(event, thisSessionNum);
+		//});
+		//thisSession.addEventListener("sessionDisconnected", function(event) {
+		//	var thisSessionNum = sessionNum;
+		//	sessionDisconnectedHandler(event, thisSessionNum);
+		//});
+		//thisSession.addEventListener("streamCreated", function(event) {
+		//	var thisSessionNum = sessionNum;
+		//	streamCreatedHandler(event, thisSessionNum);
+		//});
+		//thisSession.addEventListener("streamDestroyed", function(event) {
+		//	var thisSessionNum = sessionNum;
+		//	streamDestroyedHandler(event, thisSessionNum);
+		//});
 	}
 }
 
@@ -57,7 +77,7 @@ function sessionDisconnectedHandler(event, sessionNum) {
 	// TODO: clean up subscribers?
 	for (var streamId in mySubscribers[sessionNum]) {
 		if (mySubscribers[sessionNum].hasOwnProperty(streamId)) {
-			sessions[sessionNum].unsubscribe(sessions[sessionNum][streamId]);
+			sessions[sessionNum].unsubscribe(mySubscribers[sessionNum][streamId]);
 		}
 	}
 
@@ -106,7 +126,7 @@ function addStream(stream, sessionNum) {
 $(function() {
 	$('.startBtn').click(function(event) {
 		event.preventDefault();
-		sessionNum = $(this).hasClass('1') ? "1" : "2";
+		var sessionNum = $(this).hasClass('1') ? "1" : "2";
 		publishToSession(sessionNum);
 	});
 });
