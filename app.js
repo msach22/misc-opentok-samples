@@ -147,6 +147,9 @@ client.addListener('names'+thechannel, function(nicks){
 });
 
 client.addListener('join'+thechannel, function(nick){
+  if(nick == botname) {
+    client.say(thechannel, "Hey, look at me, new and improved!");
+  }
   if(owners.indexOf(nick) != -1) {
     owners_here.push(nick);
     client.say('Hello '+nick+'! Welcome back to '+thechannel+'. Those of you with questions can direct them to '+nick+' who would be more then happy to help you!');
