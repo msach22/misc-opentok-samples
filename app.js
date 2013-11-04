@@ -32,31 +32,6 @@ if ('development' == app.get('env')) {
 
 var keepalive_url = process.env.KEEPALIVE_URL || 'http://localhost:'+app.get('port')+'/ping';
 
-app.get('/', function(req,res){
-  res.end('go away');
-});
-
-app.get('/ping', function(req,res){
-  res.end();
-  console.log('heroku keepalive ping received!');
-});
-
-
-request.get(keepalive_url, function(err,resp,body){
-  if(!err && resp.statusCode == 200) {
-    console.log('sent keepalive ping');
-  }
-});
-//heroku keepalive
-setInterval(function(){
-  console.log('Sending keepalive ping');
-  request.get(keepalive_url, function(err,resp,body){
-    if(!err && resp.statusCode == 200) {
-      console.log('Sent keepalive ping');
-    }
-  });
-},300000)
-
 var owner_exists;
 var timer = [];
 
@@ -72,11 +47,40 @@ var client = new irc.Client('chat.freenode.org', botname, {
 
 var owners = ['robbiet480','songz','Song','aoberoi','digitaltsai'];
 
+var ping_time = process.env.PING_TIME || 300000;
+
+var timeout = process.env.TIMEOUT || 900000;
+
 var owners_here = [];
 
 var requested = [];
 
 var botop = false;
+
+app.get('/', function(req,res){
+  res.end('go away');
+});
+
+app.get('/ping', function(req,res){
+  res.end();
+  console.log('Heroku keepalive received!');
+});
+
+
+request.get(keepalive_url, function(err,resp,body){
+  if(!err && resp.statusCode == 200) {
+    console.log('Sent Heroku keepalive');
+  }
+});
+//heroku keepalive
+setInterval(function(){
+  console.log('Sending keepalive ping');
+  request.get(keepalive_url, function(err,resp,body){
+    if(!err && resp.statusCode == 200) {
+      console.log('Sent keepalive ping');
+    }
+  });
+},ping_time)
 
 client.addListener('pm', function (from, text, message) {
     if(text.indexOf('@') !== -1) {
@@ -89,6 +93,7 @@ client.addListener('pm', function (from, text, message) {
       console.log('valid email');
       console.log(from+' requested help! Their email is '+text);
       requested.push(from);
+      // TODO: PUT NOTIFICATION CODE HERE
       client.say(from, 'Thanks '+from+' someone will be sure to get back to you shortly! You may want to check out our forums at tokbox.com/forums for more information while you wait. Thanks for using OpenTok powered by TokBox');
     } else {
       client.say(from, 'Sorry '+from+' but I didn\'t understand that. Please try again.');
@@ -120,7 +125,7 @@ client.addListener('message'+thechannel, function (from, text, message) {
             timer.splice(item,1);
             console.log('Removed '+from+' from the timeout list');
           }
-        },900000);
+        },timeout);
       } else if((owners_here.length >= 1) && (owners_here.indexOf(from) == -1)) {
         console.log(owners_here.join(',')+', owner(s), is already here so I am not sending a message to '+from);
       } else {
