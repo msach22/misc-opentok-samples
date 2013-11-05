@@ -35,21 +35,25 @@ var keepalive_url = process.env.KEEPALIVE_URL || 'http://localhost:'+app.get('po
 var owner_exists;
 var timer = [];
 
-var thechannel = process.env.CHANNEL || '#opentok';
+var thechannel = process.env.CHANNEL || '#tbtest' || '#opentok';
 
 var botname = process.env.BOTNAME || 'tokbox_bot';
 
-var client = new irc.Client('chat.freenode.org', botname, {
+var server = process.env.IRC_SERVER || 'chat.freenode.org';
+
+var client = new irc.Client(server, botname, {
     channels: [thechannel],
     username: botname,
     realName: botname+', created by robbiet480'
 });
 
-var owners = ['robbiet480','songz','Song','aoberoi','digitaltsai'];
+var owners = ['songz','Song','aoberoi','digitaltsai'];
 
 var ping_time = process.env.PING_TIME || 300000;
 
 var timeout = process.env.TIMEOUT || 900000;
+
+var topic_prepend = process.env.TOPIC_PREPEND || "OpenTok || tokbox.com || ";
 
 var owners_here = [];
 
@@ -147,12 +151,13 @@ client.addListener('names'+thechannel, function(nicks){
 });
 
 client.addListener('join'+thechannel, function(nick){
-  if(nick == botname) {
-    client.say(thechannel, "Hey, look at me, new and improved!");
+  if(nick === botname) {
+    client.say(thechannel, "Hey, look at me, new, improved and ready for work!");
   }
   if(owners.indexOf(nick) != -1) {
     owners_here.push(nick);
     client.say('Hello '+nick+'! Welcome back to '+thechannel+'. Those of you with questions can direct them to '+nick+' who would be more then happy to help you!');
+    client.send('TOPIC', thechannel, topic_prepend+owners_here.join(',')+' are here to help you!');
     if(requested.length > 0) {
       client.say(nick,'While you were gone, '+requested.join(' and ')+' asked for help');
     }
@@ -168,6 +173,11 @@ client.addListener('part'+thechannel, function(nick){
     var owner = timer.indexOf(nick);
     if(owner > -1) {
       owners_here.splice(nick,1);
+      if(owners_here.length > 0) {
+        client.send('TOPIC', thechannel, topic_prepend+owners_here.join(',')+' are here to help you!');
+      } else {
+        client.send('TOPIC', thechannel, topic_prepend+'No one is currently available to help you. Please say !helpme to send a message to a staff member');
+      }
       console.log(nick+' (an owner) left');
     }
   }
