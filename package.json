@@ -15,6 +15,7 @@
     "irc": "~0.3.6",
     "underscore": "~1.5.2",
     "validator": "~1.5.1",
-    "request": "~2.27.0"
+    "request": "~2.27.0",
+    "mandrill-api": "~1.0.37"
   }
 }

@@ -10,7 +10,9 @@ var express = require('express')
   , _ = require('underscore')
   , check = require('validator').check
   , sanitize = require('validator').sanitize
-  , request = require('request');
+  , request = require('request')
+  , mandrill = require('mandrill-api/mandrill')
+  , mandrill_client = new mandrill.Mandrill(process.env.MANDRILL_KEY);
 
 var app = express();
 
@@ -55,6 +57,8 @@ var timeout = process.env.TIMEOUT || 900000;
 
 var topic_prepend = process.env.TOPIC_PREPEND || "OpenTok || tokbox.com || ";
 
+var support_email = process.env.SUPPORT_EMAIL || "irc@tokbox.com";
+
 var owners_here = [];
 
 var requested = [];
@@ -98,7 +102,28 @@ client.addListener('pm', function (from, text, message) {
       console.log(from+' requested help! Their email is '+text);
       requested.push(from);
       // TODO: PUT NOTIFICATION CODE HERE
-      client.say(from, 'Thanks '+from+' someone will be sure to get back to you shortly! You may want to check out our forums at tokbox.com/forums for more information while you wait. Thanks for using OpenTok powered by TokBox');
+      var date = new Date();
+      var message = {
+        "html": "<p>"+from+" is looking for help from someone in "+thechannel+".</p><p>Their email is "+text+". They requested help at "+date.toString()+"</p>",
+        "subject": "Help request from "+from,
+        "from_email": "tokbox-bot@tokbox.com",
+        "from_name": "Tokbox Bot",
+        "to": [{
+          "email":support_email,
+          "name": "IRC Support email",
+          "type": "to"
+        }]
+      };
+      mandrill_client.messages.send({"message":message, "async": false}, function(result){
+        // console.log(result);
+        console.log('Email sent');
+        client.say(from, 'Thanks '+from+', someone will be sure to get back to you shortly! You may want to check out our forums at tokbox.com/forums for more information while you wait. Thanks for using OpenTok powered by TokBox');
+      }, function(e){
+        console.error(e);
+        console.log('Email error');
+        client.say(from, 'We\'re so sorry '+from+', but we had an issue notifiying a team member. Please send an email to support@tokbox.com. Thank you.');
+      });
+      
     } else {
       client.say(from, 'Sorry '+from+' but I didn\'t understand that. Please try again.');
     }
@@ -157,7 +182,12 @@ client.addListener('join'+thechannel, function(nick){
   if(owners.indexOf(nick) != -1) {
     owners_here.push(nick);
     client.say('Hello '+nick+'! Welcome back to '+thechannel+'. Those of you with questions can direct them to '+nick+' who would be more then happy to help you!');
-    client.send('TOPIC', thechannel, topic_prepend+owners_here.join(',')+' are here to help you!');
+    console.log('Setting topic because an owner joined');
+    var word = "are";
+    if(owners_here.length = 1) {
+      var word = "is";
+    }
+    client.send('TOPIC', thechannel, topic_prepend+owners_here.join(', ')+' '+word+' here to help you!');
     if(requested.length > 0) {
       client.say(nick,'While you were gone, '+requested.join(' and ')+' asked for help');
     }
@@ -170,12 +200,18 @@ client.addListener('join'+thechannel, function(nick){
 
 client.addListener('part'+thechannel, function(nick){
   if(owners.indexOf(nick) != -1) {
-    var owner = timer.indexOf(nick);
+    var owner = owners_here.indexOf(nick);
     if(owner > -1) {
       owners_here.splice(nick,1);
       if(owners_here.length > 0) {
-        client.send('TOPIC', thechannel, topic_prepend+owners_here.join(',')+' are here to help you!');
+        console.log('Setting topic because a(n) owner is here but one left');
+        var word = "are";
+        if(owners_here.length = 1) {
+          var word = "is";
+        }
+        client.send('TOPIC', thechannel, topic_prepend+owners_here.join(', ')+' '+word+' here to help you!');
       } else {
+        console.log('Setting topic because no owner is available');
         client.send('TOPIC', thechannel, topic_prepend+'No one is currently available to help you. Please say !helpme to send a message to a staff member');
       }
       console.log(nick+' (an owner) left');
