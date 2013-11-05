@@ -59,6 +59,8 @@ var topic_prepend = process.env.TOPIC_PREPEND || "OpenTok || tokbox.com || ";
 
 var support_email = process.env.SUPPORT_EMAIL || "irc@tokbox.com";
 
+var opable = ['robbiet480'].concat(owners);
+
 var owners_here = [];
 
 var requested = [];
@@ -140,6 +142,14 @@ client.addListener('message'+thechannel, function (from, text, message) {
         console.log(from+' requested more help! PMing');
         client.say(from,'Hello '+from+' please give me your email address. A TokBox employee will contact you as soon as possible, by IRC if you are still available here, or by email if not.');
         requested.push(from);
+      }
+      break;
+    case '!opme':
+      if(opable.indexOf(from) != -1) {
+        console.log('opping',from);
+        client.send('MODE', thechannel, '+o', from);
+      } else {
+        console.log(from+' tried to gain op but was denied');
       }
       break;
     default:
