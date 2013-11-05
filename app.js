@@ -33,9 +33,9 @@ if ('development' == app.get('env')) {
 var keepalive_url = process.env.KEEPALIVE_URL || 'http://localhost:'+app.get('port')+'/ping';
 
 var owner_exists;
-var timer = [];
+var timer = ['robbiet480'];
 
-var thechannel = process.env.CHANNEL || '#tbtest' || '#opentok';
+var thechannel = process.env.CHANNEL || '#opentok';
 
 var botname = process.env.BOTNAME || 'tokbox_bot';
 
