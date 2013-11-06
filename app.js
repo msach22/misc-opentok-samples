@@ -49,6 +49,7 @@ var client = new irc.Client(server, botname, {
     realName: botname+', created by robbiet480'
 });
 
+// TODO: Should add auto op/powers to anyone joining from a *tokbox.com domain
 var owners = ['songz','Song','aoberoi','digitaltsai','digitaltsai1','digitaltsai2'];
 
 var ping_time = process.env.PING_TIME || 300000;
