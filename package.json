@@ -16,6 +16,7 @@
     "underscore": "~1.5.2",
     "validator": "~1.5.1",
     "request": "~2.27.0",
-    "mandrill-api": "~1.0.37"
+    "mandrill-api": "~1.0.37",
+    "async": "~0.2.9"
   }
 }
