@@ -12,7 +12,8 @@ var express = require('express')
   , sanitize = require('validator').sanitize
   , request = require('request')
   , mandrill = require('mandrill-api/mandrill')
-  , mandrill_client = new mandrill.Mandrill(process.env.MANDRILL_KEY);
+  , mandrill_client = new mandrill.Mandrill(process.env.MANDRILL_KEY)
+  , async = require('async');
 
 var app = express();
 
@@ -52,7 +53,7 @@ var client = new irc.Client(server, botname, {
 });
 
 // TODO: Should add auto op/powers to anyone joining from a *tokbox.com domain
-var owners = ['songz','Song','aoberoi','digitaltsai','digitaltsai1','digitaltsai2'];
+var owners = ['robbiet480','songz','Song','aoberoi','digitaltsai','digitaltsai1','digitaltsai2'];
 
 var ping_time = process.env.PING_TIME || 300000;
 
@@ -177,29 +178,31 @@ client.addListener('message'+thechannel, function (from, text, message) {
   }
 });
 
-client.addListener('names'+thechannel, function(nicks){
-  _.each(nicks, function(k,v){
-    var nick = v;
-    if(owners.indexOf(nick) != -1) {
-      owners_here.push(nick);
-      if(botop == true) {
-        client.send('MODE', thechannel, '+o', nick);
-      }
-      owners_here.push(nick);
-      client.say(thechannel,'Hello '+nick+'! Welcome back to '+thechannel+'. Those of you with questions can direct them to '+nick+' who would be more then happy to help you!');
-      console.log('Setting topic because an owner joined');
-      var word = "are";
-      if(owners_here.length = 1) {
-        var word = "is";
-      }
-      client.send('TOPIC', thechannel, topic_prepend+owners_here.join(', ')+' '+word+' here to help you!');
-      if(requested.length > 0) {
-        client.say(nick,'While you were gone, '+requested.join(' and ')+' asked for help');
-      }
+function checkOwner(nick,callback) {
+  if(owners.indexOf(nick) != -1) {
+    if(botop == true) {
       console.log('Giving +o to '+nick+' on '+thechannel);
       client.send('MODE', thechannel, '+o', nick);
-      requested = [];
-      timer = [];
+    }
+    return callback(true)
+  } else {
+    return callback(false);
+  }
+}
+
+client.addListener('names'+thechannel, function(nicks){
+  client.say('NICKSERV','IDENTIFY '+nickserv_password);
+  client.say('CHANSERV','OP '+thechannel);
+  async.filter(Object.keys(nicks), checkOwner,function(results){
+    owners_here = results;
+    if(results.length > 0) {
+      var word = "are";
+      if(results.length == 1) {
+        var word = "is";
+      }
+      client.send('TOPIC', thechannel, topic_prepend+results.join(', ')+' '+word+' here to help you!');
+    } else {
+      client.send('TOPIC', thechannel, topic_prepend+'No one is currently available to help you. Please say !helpme to send a message to a staff member');
     }
   });
 });
@@ -207,14 +210,15 @@ client.addListener('names'+thechannel, function(nicks){
 client.addListener('join'+thechannel, function(nick){
   if(nick === botname) {
     client.say('NICKSERV','IDENTIFY '+nickserv_password);
+    client.say('CHANSERV','OP '+thechannel);
     client.say(thechannel, "Hey, look at me, new, improved and ready for work!");
   }
   if(owners.indexOf(nick) != -1) {
     owners_here.push(nick);
-    client.say(thechannel,'Hello '+nick+'! Welcome back to '+thechannel+'. Those of you with questions can direct them to '+nick+' who would be more then happy to help you!');
+    client.say(thechannel,'Hello '+nick+', welcome back to '+thechannel+'! Those of you with questions can direct them to '+nick+' who would be more than happy to help you!');
     console.log('Setting topic because an owner joined');
     var word = "are";
-    if(owners_here.length = 1) {
+    if(owners_here.length == 1) {
       var word = "is";
     }
     client.send('TOPIC', thechannel, topic_prepend+owners_here.join(', ')+' '+word+' here to help you!');
@@ -229,23 +233,20 @@ client.addListener('join'+thechannel, function(nick){
 });
 
 client.addListener('part'+thechannel, function(nick){
-  if(owners.indexOf(nick) != -1) {
-    var owner = owners_here.indexOf(nick);
-    if(owner > -1) {
-      owners_here.splice(nick,1);
-      if(owners_here.length > 0) {
-        console.log('Setting topic because a(n) owner is here but one left');
-        var word = "are";
-        if(owners_here.length = 1) {
-          var word = "is";
-        }
-        client.send('TOPIC', thechannel, topic_prepend+owners_here.join(', ')+' '+word+' here to help you!');
-      } else {
-        console.log('Setting topic because no owner is available');
-        client.send('TOPIC', thechannel, topic_prepend+'No one is currently available to help you. Please say !helpme to send a message to a staff member');
+  if(owners_here.indexOf(nick) != -1) {
+    owners_here.splice(nick,1);
+    if(owners_here.length > 0) {
+      console.log('Setting topic because an owner is here but one left');
+      var word = "are";
+      if(owners_here.length == 1) {
+        var word = "is";
       }
-      console.log(nick+' (an owner) left');
+      client.send('TOPIC', thechannel, topic_prepend+owners_here.join(', ')+' '+word+' here to help you!');
+    } else {
+      console.log('Setting topic because no owner is available');
+      client.send('TOPIC', thechannel, topic_prepend+'No one is currently available to help you. Please say !helpme to send a message to a staff member');
     }
+    console.log(nick+' (an owner) left');
   }
 });
 
