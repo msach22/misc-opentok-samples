@@ -179,11 +179,27 @@ client.addListener('message'+thechannel, function (from, text, message) {
 
 client.addListener('names'+thechannel, function(nicks){
   _.each(nicks, function(k,v){
-    if(owners.indexOf(v) != -1) {
-      owners_here.push(v);
+    var nick = v;
+    if(owners.indexOf(nick) != -1) {
+      owners_here.push(nick);
       if(botop == true) {
-        client.send('MODE', thechannel, '+o', v);
+        client.send('MODE', thechannel, '+o', nick);
       }
+      owners_here.push(nick);
+      client.say(thechannel,'Hello '+nick+'! Welcome back to '+thechannel+'. Those of you with questions can direct them to '+nick+' who would be more then happy to help you!');
+      console.log('Setting topic because an owner joined');
+      var word = "are";
+      if(owners_here.length = 1) {
+        var word = "is";
+      }
+      client.send('TOPIC', thechannel, topic_prepend+owners_here.join(', ')+' '+word+' here to help you!');
+      if(requested.length > 0) {
+        client.say(nick,'While you were gone, '+requested.join(' and ')+' asked for help');
+      }
+      console.log('Giving +o to '+nick+' on '+thechannel);
+      client.send('MODE', thechannel, '+o', nick);
+      requested = [];
+      timer = [];
     }
   });
 });
@@ -195,7 +211,7 @@ client.addListener('join'+thechannel, function(nick){
   }
   if(owners.indexOf(nick) != -1) {
     owners_here.push(nick);
-    client.say('Hello '+nick+'! Welcome back to '+thechannel+'. Those of you with questions can direct them to '+nick+' who would be more then happy to help you!');
+    client.say(thechannel,'Hello '+nick+'! Welcome back to '+thechannel+'. Those of you with questions can direct them to '+nick+' who would be more then happy to help you!');
     console.log('Setting topic because an owner joined');
     var word = "are";
     if(owners_here.length = 1) {
