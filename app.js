@@ -34,6 +34,8 @@ if ('development' == app.get('env')) {
 
 var keepalive_url = process.env.KEEPALIVE_URL || 'http://localhost:'+app.get('port')+'/ping';
 
+var nickserv_password = process.env.NICKSERV_PASSWORD || '';
+
 var owner_exists;
 var timer = ['robbiet480'];
 
@@ -188,6 +190,7 @@ client.addListener('names'+thechannel, function(nicks){
 
 client.addListener('join'+thechannel, function(nick){
   if(nick === botname) {
+    client.say('NICKSERV','IDENTIFY '+nickserv_password);
     client.say(thechannel, "Hey, look at me, new, improved and ready for work!");
   }
   if(owners.indexOf(nick) != -1) {
