@@ -197,10 +197,14 @@ client.addListener('names'+thechannel, function(nicks){
     owners_here = results;
     if(results.length > 0) {
       var word = "are";
+      var joiner = ", ";
       if(results.length == 1) {
         var word = "is";
       }
-      client.send('TOPIC', thechannel, topic_prepend+results.join(', ')+' '+word+' here to help you!');
+      if(results.length == 2) {
+        var joiner = " and ";
+      }
+      client.send('TOPIC', thechannel, topic_prepend+results.join(joiner)+' '+word+' here to help you!');
     } else {
       client.send('TOPIC', thechannel, topic_prepend+'No one is currently available to help you. Please say !helpme to send a message to a staff member');
     }
@@ -218,10 +222,14 @@ client.addListener('join'+thechannel, function(nick){
     client.say(thechannel,'Hello '+nick+', welcome back to '+thechannel+'! Those of you with questions can direct them to '+nick+' who would be more than happy to help you!');
     console.log('Setting topic because an owner joined');
     var word = "are";
+    var joiner = ", ";
     if(owners_here.length == 1) {
       var word = "is";
     }
-    client.send('TOPIC', thechannel, topic_prepend+owners_here.join(', ')+' '+word+' here to help you!');
+    if(owners_here.length == 2) {
+      var joiner = " and ";
+    }
+    client.send('TOPIC', thechannel, topic_prepend+owners_here.join(joiner)+' '+word+' here to help you!');
     if(requested.length > 0) {
       client.say(nick,'While you were gone, '+requested.join(' and ')+' asked for help');
     }
@@ -238,10 +246,14 @@ client.addListener('part'+thechannel, function(nick){
     if(owners_here.length > 0) {
       console.log('Setting topic because an owner is here but one left');
       var word = "are";
+      var joiner = ", ";
       if(owners_here.length == 1) {
         var word = "is";
       }
-      client.send('TOPIC', thechannel, topic_prepend+owners_here.join(', ')+' '+word+' here to help you!');
+      if(owners_here.length == 2) {
+        var joiner = " and ";
+      }
+      client.send('TOPIC', thechannel, topic_prepend+owners_here.join(joiner)+' '+word+' here to help you!');
     } else {
       console.log('Setting topic because no owner is available');
       client.send('TOPIC', thechannel, topic_prepend+'No one is currently available to help you. Please say !helpme to send a message to a staff member');
