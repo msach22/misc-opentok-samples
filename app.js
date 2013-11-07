@@ -170,7 +170,7 @@ client.addListener('message'+thechannel, function (from, text, message) {
           }
         },timeout);
       } else if((owners_here.length >= 1) && (owners_here.indexOf(from) == -1)) {
-        console.log(owners_here.join(',')+', owner(s), is already here so I am not sending a message to '+from);
+        // console.log(owners_here.join(',')+', owner(s), is already here so I am not sending a message to '+from);
       } else {
         console.log(from+' didnt match any vars, NOT sending a message');
       }
