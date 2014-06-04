@@ -18,7 +18,7 @@ opentok.createSession(function(err, session) {
 });
 
 app.get('/', function(req, res) {
-  res.render('index', { apiKey: apiKey });
+  res.render('index.ejs', { apiKey: apiKey });
 });
 
 app.get('/classroom', function(req, res) {

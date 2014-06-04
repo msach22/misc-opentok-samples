@@ -6,6 +6,14 @@ var extend = require('node.extend');
 var substituteConfig = require('./substitute-config');
 
 require('pho-devstack')(gulp, {
+  dist: {
+    markupDir: 'views/',
+    markupFiles: '**/*.ejs',
+  },
+  src: {
+    markupFiles: '**/*.ejs',
+  },
+
   imagemin: {
     enabled: false
   },
