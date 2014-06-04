@@ -17,6 +17,10 @@ opentok.createSession(function(err, session) {
   init();
 });
 
+app.get('/', function(req, res) {
+  res.render('index', { apiKey: apiKey });
+});
+
 app.get('/classroom', function(req, res) {
   var sessionId = app.get('sessionId'),
       token = opentok.generateToken(sessionId);
