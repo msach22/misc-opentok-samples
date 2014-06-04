@@ -1,6 +1,28 @@
 angular.module('app.home')
   .controller('OpenTokCtrl', ['$scope', 'OTSession', 'apiKey', 'sessionId', 'token', function($scope, OTSession, apiKey, sessionId, token) {
-    OTSession.init(apiKey, sessionId, token);
+    OTSession.init(apiKey, sessionId, token, function(err, session) {
+      console.log("THIS IS FROM MY APP");
+      console.log(session);
+      session.on({
+        startedToTalk: function(event) {
+          console.log("STARTED TO TALK");
+          console.log(event);
+          event.subscribers.forEach(function(subscriber) {
+            subscriber.element.classList.add('OT_big');
+          });
+          $scope.$emit("otLayout");
+        },
+
+        stoppedToTalk: function(event) {
+          console.log("STOPPED TO TALK");
+          console.log(event);
+          event.subscribers.forEach(function(subscriber) {
+            subscriber.element.classList.remove('OT_big');
+          });
+          $scope.$emit("otLayout");
+        }
+      });
+    });
     $scope.streams = OTSession.streams;
   }]).value({
     apiKey: '854511',
