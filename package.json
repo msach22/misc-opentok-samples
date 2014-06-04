@@ -12,7 +12,10 @@
     "type": "git",
     "url": ""
   },
-  "dependencies": {},
+  "dependencies": {
+    "express": "^4.4.1",
+    "opentok": "^2.2.2"
+  },
   "devDependencies": {
     "gulp": "~3.6.0",
     "pho-devstack": "~1.1.0",
