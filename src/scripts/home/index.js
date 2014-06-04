@@ -1,3 +1,4 @@
-module.exports = angular.module('app.home', []);
+module.exports = angular.module('app.home', ['opentok']);
 
-require('./HomeCtrl')
+require('./HomeCtrl');
+require('./OpenTokCtrl');

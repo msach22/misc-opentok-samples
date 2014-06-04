@@ -40,7 +40,12 @@ require('pho-devstack')(gulp, {
     // cdn: 'http://example.com' // url to your cdn server
   }),
 
-  copy: ['humans.txt', 'bower_components/angular/**/*.{js,map}']
+  copy: [
+    'humans.txt',
+    'bower_components/angular/**/*.{js,map}',
+    'bower_components/opentok-angular/opentok-angular.min.js',
+    'bower_components/opentok-layout-js/opentok-layout.min.js'
+  ]
 });
 
 // If needed, redefine tasks here

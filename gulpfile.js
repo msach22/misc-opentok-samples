@@ -16,7 +16,15 @@ require('pho-devstack')(gulp, {
     }
   }),
 
-  copy: ['images/sprites/**/*', 'humans.txt', 'bower_components/angular/**/*.{js,map}']
+  copy: [
+    'images/sprites/**/*',
+    'humans.txt',
+    'bower_components/angular/**/*.{js,map}',
+    'bower_components/jquery/**/*.{js,map}',
+    'bower_components/opentok-angular/opentok-angular.min.js',
+    'bower_components/opentok-layout-js/opentok-layout.min.js',
+    'opentok/**/*'
+  ]
 });
 
 // If needed, redefine tasks here
