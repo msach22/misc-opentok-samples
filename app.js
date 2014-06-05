@@ -13,9 +13,7 @@ var apiKey = process.env.OPENTOK_KEY || (config.opentok && config.opentok.key),
     opentok = new OpenTok(apiKey, apiSecret),
     app = express();
 
-if (opentok instanceof Error) {
-  throw opentok;
-}
+if (opentok instanceof Error) { throw opentok; }
 
 app.use(express.static(__dirname + '/dist'));
 

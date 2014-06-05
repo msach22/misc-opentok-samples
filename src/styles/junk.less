@@ -1,5 +1,8 @@
 
 
+@sidebar-width: 335px;
+@course-header-height: 60px;
+
 .logo {
   .absolute(49px, 13px);
 }
@@ -23,11 +26,31 @@ ot-layout {
 }
 
 .classroom {
-  .size(705px, 480px);
+  .min-size(640px, 480px); /* actual sizes will be set in JS */
   position: relative;
 }
 
+.course-title {
+  width: @sidebar-width;
+  text-align: center;
+  line-height: @course-header-height;
+  height: @course-header-height;
+  background-color: #1abc9c;
+  float: left;
+  color: #f7f5f2;
+}
 
+.course-info {
+  & > div {
+    /* TODO: 3 fluid columns */
+    display: inline-block;
+    margin-left: 40px;
+  }
+  height: @course-header-height;
+  line-height: @course-header-height;
+  margin-left: @sidebar-width;
+  background-color: #ecf0f1;
+}
 
 
 
