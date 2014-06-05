@@ -1,12 +1,21 @@
 var express = require('express'),
     OpenTok = require('opentok'),
-    config = require('./config'),
-    apiKey = process.env.OPENTOK_KEY || (config.opentok && config.opentok.key),
+    config;
+
+try {
+    config = require('./config')
+} catch (e) { if (e.code !== 'MODULE_NOT_FOUND') { throw e; } config = {}; }
+
+var apiKey = process.env.OPENTOK_KEY || (config.opentok && config.opentok.key),
     apiSecret = process.env.OPENTOK_SECRET || (config.opentok && config.opentok.secret),
     port = process.env.PORT || (config.http && config.http.port) || 3000,
+
     opentok = new OpenTok(apiKey, apiSecret),
     app = express();
 
+if (opentok instanceof Error) {
+  throw opentok;
+}
 
 app.use(express.static(__dirname + '/dist'));
 
