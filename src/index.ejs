@@ -10,7 +10,7 @@
 
   <header id="header">
     <div class="brand">
-      <img class="logo" src="images/sprites/SOMAUNIVERSITY-logo.png" alt="SOMA University Logo" width="154" height="14" />
+      <img class="logo" src="images/SOMAUNIVERSITY-logo.png" alt="SOMA University Logo" width="154" height="14" />
     </div>
     <nav class="user">
       <ul>
@@ -21,14 +21,14 @@
   </header>
 
   <div ng-controller="OpenTokCtrl" class="classroom">
-      <ot-layout props="{animate:true}">
+      <ot-layout props="{animate:true, bigFirst:false}">
           <ot-subscriber ng-repeat="stream in streams"
               stream="stream"
-              props="{style: {nameDisplayMode: 'off'}}">
+              props="{style: {nameDisplayMode: 'off', buttonDisplayMode: 'off'}}">
           </ot-subscriber>
           <ot-publisher id="publisher"
               apiKey="<%= apiKey %>"
-              props="{style: {nameDisplayMode: 'off'}, resolution: '1280x720', frameRate: 30}">
+              props="{style: {nameDisplayMode: 'off', buttonDisplayMode: 'off'}, resolution: '1280x720', frameRate: 30}">
           </ot-publisher>
       </ot-layout>
   </div>
