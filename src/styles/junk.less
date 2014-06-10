@@ -1,11 +1,15 @@
+/*
+ * Variables
+ */
 
+@header-height: 40px;
+@sidebar-width: 335px;
+
+@footer-height: 80px;
+@footer-color: #34495e;
 
 @sidebar-width: 335px;
 @course-header-height: 60px;
-
-.logo {
-  .absolute(49px, 13px);
-}
 
 .user > ul {
   .list-horizontal-right;
@@ -26,7 +30,9 @@ ot-layout {
 }
 
 .classroom {
-  .min-size(640px, 480px); /* actual sizes will be set in JS */
+  /* .min-size(640px, 480px); */
+  width: 100%;
+  height: 100%;
   position: relative;
 }
 

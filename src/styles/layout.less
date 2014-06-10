@@ -5,21 +5,45 @@
 @header-height: 40px;
 @sidebar-width: 335px;
 
+@courseInfo-height: 60px;
+
+@footer-height: 80px;
+@footer-color: #34495e;
 
 /*
  * Header
  */
 
 #header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
   height: @header-height;
+  
+  .headerLayoutContainer{
+    width: 100%;
+    position: relative;
 
-  .brand {
-    width: @sidebar-width;
+    .logo {
+      /* .absolute(49px, 13px); */
+      positon: absolute;
+      top: 0;
+      left: 0;
+      display: inline-block;
+      height: @header-height;
+    }
+
+    .user {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: inline-block;
+      height: @header-height;
+    }
+
   }
 
-  .user {
-    text-align: right;
-  }
 }
 
 
@@ -28,5 +52,59 @@
  */
 
 #sidebar {
+  position: fixed;
+  top: @header-height;
   width: @sidebar-width;
+  bottom: @footer-height;
+  overflow: auto;
+
+  #sidebarTitle{
+    display: block;
+    width: @sidebar-width;
+    height: @courseInfo-height;
+  }
+
+  #sidebarNav{
+    width: @sidebar-width;
+  }
+}
+
+
+
+/*
+ * mainContent
+ */
+
+#mainContent{
+  position: fixed;
+  top: @header-height;
+  bottom: @footer-height;
+  left: @sidebar-width;
+  right: 0;
+  background-color: #ecf0f1;
+
+  #courseInfo{
+    display: block;
+    height: @courseInfo-height;
+  }
+}
+
+
+
+/*
+ * footer
+ */
+
+#pageFooter {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: @footer-height;
+  background-color: @footer-color;
+  text-align:center;
+  img{
+    height: 100%;
+  }
 }

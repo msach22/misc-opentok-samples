@@ -9,32 +9,19 @@
 <body ng-app="app">
 
   <header id="header">
-    <div class="brand">
-      <img class="logo" src="images/SOMAUNIVERSITY-logo.png" alt="SOMA University Logo" width="154" height="14" />
-    </div>
-    <nav class="user">
-      <ul>
-        <li>Ian Small</li>
-        <li>My Courses</li>
-      </ul>
-    </nav>
+  <div class="headerLayoutContainer">
+    <img class="logo" src="images/logo.png" alt="SOMA University Logo"/>
+    <img src="images/user.png" alt="" class="user">
+  </div>
   </header>
 
-  <section class="course">
+  <section id="sidebar">
+    <img id="sidebarTitle" src="images/sidebarTitle.png" alt="">
+    <img id="sidebarNav" src="images/sidebarNav.png" alt="">
+  </section>
 
-    <header>
-      <div class="course-title">
-        <h2>Ping Pong Political Prowess</h2>
-      </div>
-      <div class="course-info">
-        <div class="instructor">Professor Ian Small, PhD</div>
-        <div class="section">Spring Quarter 2014</div>
-        <div class="date">March 26, 2014 - June 13, 2014</div>
-      </div>
-    </header>
-
-
-
+  <section id="mainContent">
+    <img id="courseInfo" src="images/courseInfo.png" alt="">
     <div ng-controller="OpenTokCtrl" class="classroom">
         <ot-layout props="{animate:true, bigFirst:false}">
             <ot-subscriber ng-repeat="stream in streams"
@@ -47,8 +34,19 @@
             </ot-publisher>
         </ot-layout>
     </div>
+  </section>
+
+  <section class="course">
+
+
+
+
 
   </section>
+
+  <footer id="pageFooter">
+  <img src="/images/footer.png" alt="">
+  </footer>
 
   <script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
 
