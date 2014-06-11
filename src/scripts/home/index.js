@@ -1,3 +1,3 @@
-module.exports = angular.module('app.home', ['opentok']);
+module.exports = angular.module('app.home', ['opentok', 'firebase']);
 
 require('./OpenTokCtrl');

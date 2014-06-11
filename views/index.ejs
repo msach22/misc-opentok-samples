@@ -22,15 +22,17 @@
     <img id="sidebarNav" src="images/sidebarNav.png" alt="" />
   </section>
 
-  <div ng-controller="OpenTokCtrl" class="classroom">
+  <div ng-controller="OpenTokCtrl" class="classroom" teacher="<%= teacher %>">
 
       <ot-layout props="{animate:true, bigFirst:false}">
           <ot-subscriber ng-repeat="stream in streams"
               stream="stream"
+              streamid="{{stream.streamId}}"
               props="{style: {nameDisplayMode: 'off', buttonDisplayMode: 'off'}}">
           </ot-subscriber>
           <ot-publisher id="publisher"
               apiKey="<%= apiKey %>"
+              streamid="{{stream.streamId}}"
               props="{style: {nameDisplayMode: 'off', buttonDisplayMode: 'off'}, resolution: '1280x720', frameRate: 30}">
           </ot-publisher>
       </ot-layout>
@@ -38,7 +40,7 @@
       <div class="bottomBar">
         <div class="actions" />
           <button name="whiteboard" />
-          <button name="discussion" />
+          <button name="discussion" ng-click="locked = !locked"/>
         </div>
         <div class="settings">
           <button name="mute" />
@@ -53,11 +55,14 @@
 
   <script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
 
+  <script src="https://cdn.firebase.com/js/client/1.0.15/firebase.js"></script>
   <script type="text/javascript" src="opentok/TB.js"></script>
   <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
   <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
   <script type="text/javascript" src="bower_components/opentok-layout-js/opentok-layout.min.js"></script>
   <script type="text/javascript" src="bower_components/opentok-angular/opentok-angular.min.js"></script>
+  <script src="https://cdn.firebase.com/libs/angularfire/0.7.1/angularfire.min.js"></script>
+
 
   <script src="scripts/main.js"></script>
   <!-- Google Analytics -->
