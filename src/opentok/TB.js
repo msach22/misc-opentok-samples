@@ -1,44 +1,43 @@
 /**
- * @license  OpenTok JavaScript Library @version@
+ * @license  OpenTok JavaScript Library v2.2.5
  * http://www.tokbox.com/
  *
  * Copyright (c) 2014 TokBox, Inc.
  *
- * Date: @build_time@
+ * Date: June 11 03:09:00 2014
  */
 
 (function(window) {
   if (!window.OT) window.OT = {};
 
-  /*
-   * THIS IS USED FOR THE LOCAL NODE SERVER, THE DEPLOYED VERSION WILL USE properties.js
-   *
-   * This properties file will point to the production backend and should just work.
-   * If you have your own backend environment setup (anvil, rumor, symphony, prism) then you should
-   * use local_properties.js.sample instead.
-   *
-   * This also assumes that the webrtc-js directory is located at the root of your webserver.
-   * If it is not then you will need to update the assetURLs below to point to that.
-   *
-   * Usage (from the project root):
-   *   gradle runProd
-   *
-   */
-
   OT.properties = {
-    version: 'v2.2',
-    debug: true,
+    version: 'v2.2',         // The current version (eg. v2.0.4) (This is replaced by gradle)
+    build: '0de1dd4',    // The current build hash (This is replaced by gradle)
+
+    // Whether or not to turn on debug logging by default
+    debug: 'true',
+    // The URL of the tokbox website
     websiteURL: 'http://www.tokbox.com',
 
-    loggingURL: 'http://hlg.tokbox.com/localhost',
-    apiURL: 'http://anvil.opentok.com',
+    // The URL of the CDN
     cdnURL: '/opentok',
+    // The URL to use for logging
+    loggingURL: 'http://hlg.tokbox.com/localhost',
+    // The anvil API URL
+    apiURL: 'http://anvil.opentok.com',
 
+    // What protocol to use when connecting to the rumor web socket
     messagingProtocol: 'wss',
+    // What port to use when connection to the rumor web socket
     messagingPort: 443,
 
-    supportSSL: true,
+    // If this environment supports SSL
+    supportSSL: 'true',
+    // The CDN to use if we're using SSL
+    cdnURLSSL: '/webrtc-js',
+    // The loggging URL to use if we're using SSL
     loggingURLSSL: 'https://api.opentok.com/hl',
+    // The anvil API URL to use if we're using SSL
     apiURLSSL: 'https://anvil.opentok.com',
 
     minimumVersion: {
@@ -13527,16 +13526,38 @@ OTHelpers.centerElement = function(element, width, height) {
       }
     });
 
+    var uuid = OT.$.uuid();
+
     OT.Chrome.Behaviour.Widget(this, {
       nodeName: 'div',
-      htmlContent: '<div class="OT_meter-bar"></div>',
+      htmlContent: '<svg width="0" height="0">' +
+          '<defs>' +
+          '<mask id="OT_masking_' + uuid + '">' +
+          '<polygon points="0,0 36,0 36,36" style="fill:white" />' +
+          '</mask>' +
+          '</defs>' +
+          '</svg>' +
+          '<svg class="OT_meter-bar" xmlns="http://www.w3.org/2000/svg" ' +
+          'xmlns:xlink="http://www.w3.org/1999/xlink" width="36" height="36">' +
+          '<image xlink:href="' + OT.properties.assetURL +
+          '/images/rtc/audio-meter-bars.png" width="36" height="36" ' +
+          'mask="url(#OT_masking_' + uuid + ')"></image>' +
+          '</svg>',
       htmlAttributes: {
         className: 'OT_meter'
       },
       onCreate: function() {
-        var meterBarElmt = _domElement.querySelector('.OT_meter-bar');
+        var maskingPolygon = _domElement.querySelector('mask > polygon');
         updateView  = function() {
-          meterBarElmt.style.width = _value * 100 + '%';
+          var mag = _value * 36,
+            x1 = 36 - mag,
+            y1 = 0,
+            x2 = 36,
+            y2 = 0,
+            x3 = 36,
+            y3 = mag;
+          maskingPolygon.setAttribute('points', x1 + ',' + y1 + ' ' + x2 + ',' + y2 + ' ' +
+              x3 + ',' + y3);
         };
       }
     });
