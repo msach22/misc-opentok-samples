@@ -2,6 +2,8 @@ angular.module('app.home')
   .controller('OpenTokCtrl', ['$scope', 'OTSession', '$http', '$window', '$firebase', '$attrs',
   function($scope, OTSession, $http, $window, $firebase, $attrs) {
 
+    var MAX_BIG = 1;
+
     if ($attrs.teacher === 'true') {
       $scope.teacher = true;
     } else {
@@ -13,17 +15,7 @@ angular.module('app.home')
     $scope.bigStreams.$on('loaded', function() {
       // if i'm the teacher, overwrite this and put just me as the big stream
       if ($scope.teacher) {
-        // there may be a race condition here, how do we know when the publisher is ready?
-        if ($scope.publishers.length != 1) {
-          throw new Error('Publisher was not ready in time');
-        }
-
-        $scope.publishers[0].on('streamCreated', function(event) {
-          console.log($scope.publishers[0].stream.streamId);
-          $scope.bigStreams.$remove();
-          $scope.bigStreams.$add($scope.publishers[0].stream.streamId);
-          console.log('updated bigStreams');
-        });
+        takeOwnership();
       }
       // if i'm the student, call a function that iterates over the bigStreams and sets them up
       else {
@@ -34,6 +26,27 @@ angular.module('app.home')
       // call the function that iterates over the bigStreams and sets them up
       updateBigStreams();
     });
+
+    var takeOwnership = function() {
+      // there may be a race condition here, how do we know when the publisher is ready?
+      if ($scope.publishers.length != 1) {
+        throw new Error('Publisher was not ready in time');
+      }
+
+      if ($scope.publishers[0].stream) {
+        console.log($scope.publishers[0].stream.streamId);
+        $scope.bigStreams.$remove();
+        $scope.bigStreams.$add($scope.publishers[0].stream.streamId);
+        console.log('owned bigStreams');
+      } else {
+        $scope.publishers[0].on('streamCreated', function(event) {
+          console.log($scope.publishers[0].stream.streamId);
+          $scope.bigStreams.$remove();
+          $scope.bigStreams.$add($scope.publishers[0].stream.streamId);
+          console.log('owned bigStreams');
+        });
+      }
+    };
 
     var updateBigStreams = function() {
       // flattened list of just the streamId's for the big streams
@@ -71,17 +84,26 @@ angular.module('app.home')
       $scope.streams.forEach(function(stream, index) {
         updateStream(stream.streamId);
       });
-      // there might be a race condition here, hopefully this event fires immediately if
-      // the stream was already previously created.
-      //$scope.publishers[0].on('streamCreated', function(event) {
+
+      if ($scope.publishers[0].stream) {
         updateStream($scope.publishers[0].stream.streamId);
-      //});
-      $scope.$emit("otLayout");
+        $scope.$emit("otLayout");
+      } else {
+        $scope.publishers[0].on('streamCreated', function(event) {
+          updateStream($scope.publishers[0].stream.streamId);
+          $scope.$emit("otLayout");
+        });
+      }
+
+
     };
 
     $scope.locked = true;
     $scope.$watch('locked', function(newValue, oldValue) {
       console.log('locked going from ' + oldValue + ' to ' + newValue);
+      if (newValue == true) {
+        takeOwnership();
+      }
     });
 
     $http.get('/classroom').success(function(data) {
@@ -96,8 +118,14 @@ angular.module('app.home')
               if (!$scope.locked && $scope.teacher) {
                 // add the stream to bigStreams
                 console.log('SPEAKING:', subscriber.streamId);
+
+                // remove the oldest if we don't want any more big
+                var keys = $scope.bigStreams.$getIndex();
+                if (keys.length >= MAX_BIG) {
+                  $scope.bigStreams.$remove(keys[0]);
+                }
+
                 $scope.bigStreams.$add(subscriber.streamId);
-                //subscriber.element.classList.add('OT_big');
               }
             });
           },
@@ -114,10 +142,7 @@ angular.module('app.home')
                   }
                 });
               }
-              // remove the stream from bigStreams
-              //subscriber.element.classList.remove('OT_big');
             });
-            //$scope.$emit("otLayout");
           }
         });
 
