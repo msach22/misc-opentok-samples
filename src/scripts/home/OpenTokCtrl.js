@@ -4,9 +4,6 @@ angular.module('app.home')
       OTSession.init(data.apiKey, data.sessionId, data.token, function(err, session) {
         if (err) throw err;
 
-        console.log("THIS IS FROM MY APP");
-        console.log(session);
-
         session.on({
           startedToTalk: function(event) {
             console.log("STARTED TO TALK");
