@@ -71,6 +71,7 @@ angular.module('app.home')
           $el.removeClass('OT_big');
         }
         console.log(OTSession.session.streams);
+        $scope.$emit("otLayout");
       }
 
       // generate bigStreamList
@@ -95,6 +96,7 @@ angular.module('app.home')
         });
       }
 
+      $scope.$emit("otLayout");
 
     };
 
