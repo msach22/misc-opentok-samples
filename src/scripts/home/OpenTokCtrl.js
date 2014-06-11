@@ -1,5 +1,5 @@
 angular.module('app.home')
-  .controller('OpenTokCtrl', ['$scope', 'OTSession', '$http', function($scope, OTSession, $http) {
+  .controller('OpenTokCtrl', ['$scope', 'OTSession', '$http', '$window', function($scope, OTSession, $http, $window) {
     $http.get('/classroom').success(function(data) {
       OTSession.init(data.apiKey, data.sessionId, data.token, function(err, session) {
         if (err) throw err;
@@ -30,5 +30,14 @@ angular.module('app.home')
 
     }).error(function(data, status) {
       console.log("An error occurred while retrieving the classroom data.", data, status);
+    });
+
+    // this is probably the wrong place to do this, maybe put this in a directive
+    angular.element($window).bind('resize', function() {
+      console.log('RESIZED!');
+      // BAD! accessing DOM directly
+      //$('.classroom').width($('body').width() - $('#sidebar').width());
+      $('.classroom').height($(window).height() - ($('#header').height() + $('#course-info').height() + $('#pageFooter').height()));
+      $scope.$emit('otLayout');
     });
   }]);

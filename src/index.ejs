@@ -9,51 +9,43 @@
 <body ng-app="app">
 
   <header id="header">
-    <div class="headerLayoutContainer">
-      <img class="logo" src="images/logo.png" alt="SOMA University Logo" />
-      <img src="images/user.png" alt="" class="user" />
-    </div>
+    <img class="logo" src="images/logo.png" alt="SOMA University Logo" />
+    <img class="user" src="images/user.png" alt="" />
   </header>
 
+  <section id="course-info">
+    <img src="images/course-title.png" />
+    <img src="images/course-info.png" />
+  </section>
+
   <section id="sidebar">
-    <img id="sidebarTitle" src="images/sidebarTitle.png" alt="" />
     <img id="sidebarNav" src="images/sidebarNav.png" alt="" />
   </section>
 
-  <section id="mainContent">
+  <div ng-controller="OpenTokCtrl" class="classroom">
 
-    <img id="courseInfo" src="images/courseInfo.png" alt="" />
+      <ot-layout props="{animate:true, bigFirst:false}">
+          <ot-subscriber ng-repeat="stream in streams"
+              stream="stream"
+              props="{style: {nameDisplayMode: 'off', buttonDisplayMode: 'off'}}">
+          </ot-subscriber>
+          <ot-publisher id="publisher"
+              apiKey="<%= apiKey %>"
+              props="{style: {nameDisplayMode: 'off', buttonDisplayMode: 'off'}, resolution: '1280x720', frameRate: 30}">
+          </ot-publisher>
+      </ot-layout>
 
-    <div ng-controller="OpenTokCtrl" class="classroom">
-
-        <ot-layout props="{animate:true, bigFirst:false}">
-            <ot-subscriber ng-repeat="stream in streams"
-                stream="stream"
-                props="{style: {nameDisplayMode: 'off', buttonDisplayMode: 'off'}}">
-            </ot-subscriber>
-            <ot-publisher id="publisher"
-                apiKey="<%= apiKey %>"
-                props="{style: {nameDisplayMode: 'off', buttonDisplayMode: 'off'}, resolution: '1280x720', frameRate: 30}">
-            </ot-publisher>
-        </ot-layout>
-
-        <div class="bottomBar">
-          <div class="actions" />
-            <button name="screenshare" /> <!-- this doesn't do anything -->
-            <button name="whiteboard" />
-            <button name="discussion" />
-          </div>
-          <div class="settings">
-            <button name="chat" /> <!-- this doesn't do anything -->
-            <button name="mute" />
-          </div>
+      <div class="bottomBar">
+        <div class="actions" />
+          <button name="whiteboard" />
+          <button name="discussion" />
         </div>
+        <div class="settings">
+          <button name="mute" />
+        </div>
+      </div>
 
-    </div>
-
-  </section>
-
-  <section class="course"></section>
+  </div>
 
   <footer id="pageFooter">
     <img src="images/footer.png" alt="">
