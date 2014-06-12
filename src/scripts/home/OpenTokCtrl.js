@@ -6,8 +6,10 @@ angular.module('app.home')
 
     if ($attrs.teacher === 'true') {
       $scope.teacher = true;
+      console.log('i am the teacher');
     } else {
       $scope.teacher = false;
+      console.log('i am a student');
     }
 
     var bigStreamsRef = new Firebase("https://otaudiodetect.firebaseio.com/classroom");
@@ -15,6 +17,7 @@ angular.module('app.home')
     $scope.bigStreams.$on('loaded', function() {
       // if i'm the teacher, overwrite this and put just me as the big stream
       if ($scope.teacher) {
+        // race condition, opentok will connect later so the taking of ownership cannot happen yet
         takeOwnership();
       }
       // if i'm the student, call a function that iterates over the bigStreams and sets them up
@@ -29,7 +32,7 @@ angular.module('app.home')
 
     var takeOwnership = function() {
       // there may be a race condition here, how do we know when the publisher is ready?
-      if ($scope.publishers.length != 1) {
+      if ((!$scope.publishers) || $scope.publishers.length != 1) {
         throw new Error('Publisher was not ready in time');
       }
 
@@ -164,4 +167,11 @@ angular.module('app.home')
       $('.classroom').height($(window).height() - ($('#header').height() + $('#course-info').height() + $('#pageFooter').height()));
       $scope.$emit('otLayout');
     });
+
+    // $scope.toggleWhiteboard = function() {
+    //   $scope.showWhiteboard = ! $scope.showWhiteboard;
+    //   setTimeout(function () {
+    //     $scope.$emit("otLayout");
+    //   }, 10);
+    // };
   }]);

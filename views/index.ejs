@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <title>webrtcexpo14-audiodetection</title>
 
+  <link href="bower_components/opentok-whiteboard/opentok-whiteboard.css" rel="stylesheet" />
   <link rel="stylesheet" href="styles/main.css">
 </head>
 <body ng-app="app">
@@ -39,7 +40,7 @@
 
       <div class="bottomBar">
         <div class="actions" />
-          <button name="whiteboard" />
+          <button name="whiteboard"/>
           <button name="discussion" ng-click="locked = !locked"/>
         </div>
         <div class="settings">
@@ -61,6 +62,7 @@
   <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
   <script type="text/javascript" src="bower_components/opentok-layout-js/opentok-layout.min.js"></script>
   <script type="text/javascript" src="bower_components/opentok-angular/opentok-angular.min.js"></script>
+  <script type="text/javascript" src="bower_components/opentok-whiteboard/opentok-whiteboard.min.js"></script>
   <script src="https://cdn.firebase.com/libs/angularfire/0.7.1/angularfire.min.js"></script>
 
 

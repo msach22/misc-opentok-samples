@@ -832,8 +832,7 @@ position: absolute;
 
 /* Default display mode transitions for various chrome elements */
 .OT_publisher .OT_edge-bar-item,
-.OT_subscriber .OT_edge-bar-item,
-.OT_subscriber .OT_meter {
+.OT_subscriber .OT_edge-bar-item {
     -ms-transition-property: top, bottom, opacity;
     -ms-transition-duration: 0.5s;
     -moz-transition-property: top, bottom, opacity;
@@ -853,7 +852,7 @@ position: absolute;
 .OT_subscriber .OT_edge-bar-item.OT_mode-auto,
 .OT_publisher .OT_edge-bar-item.OT_mode-mini-auto,
 .OT_subscriber .OT_edge-bar-item.OT_mode-mini-auto {
-    top: -34px;
+    top: -25px;
     opacity: 0;
 }
 
@@ -870,7 +869,7 @@ position: absolute;
 .OT_publisher .OT_edge-bar-item.OT_edge-bottom.OT_mode-mini-auto,
 .OT_subscriber .OT_edge-bar-item.OT_edge-bottom.OT_mode-mini-auto {
     top: auto;
-    bottom: -34px;
+    bottom: -25px;
 }
 
 .OT_publisher .OT_edge-bar-item.OT_mode-on,
@@ -967,19 +966,15 @@ position: absolute;
     background-image: url(../images/rtc/audioonly-subscriber.png);
 }
 
-.OT_subscriber .OT_edge-bar-item.OT_mode-on ~ .OT_meter,
-.OT_subscriber:hover .OT_meter {
-    top: 34px;
-}
-
-.OT_subscriber .OT_meter {
+.OT_meter {
     position: absolute;
-    right: 0;
-    top: 0;
-    width: 36px;
-    height: 36px;
+    bottom: 0;
+    height: .5em;
+    width: 100%;
+    background-color: rgba(238, 238, 238, .2);
 }
 
-.OT_subscriber .OT_meter-bar {
-    background-image: url('../images/rtc/audio-meter-bg.png');
+.OT_meter-bar {
+    height: 100%;
+    background-color: rgba(0, 144, 213, .6);
 }
