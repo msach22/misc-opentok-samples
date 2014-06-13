@@ -41,7 +41,11 @@
       <div class="bottomBar">
         <div class="actions" />
           <button name="whiteboard"/>
-          <button name="discussion" ng-click="locked = !locked"/>
+
+          <% if (teacher) { %>
+            <button name="discussion" ng-click="locked = !locked" locked="{{locked}}"/>
+          <% } %>
+          
         </div>
         <div class="settings">
           <button name="mute" />

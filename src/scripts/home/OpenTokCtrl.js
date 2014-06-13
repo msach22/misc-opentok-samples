@@ -2,7 +2,8 @@ angular.module('app.home')
   .controller('OpenTokCtrl', ['$scope', 'OTSession', '$http', '$window', '$firebase', '$attrs',
   function($scope, OTSession, $http, $window, $firebase, $attrs) {
 
-    var MAX_BIG = 1;
+    var MAX_BIG = 1,
+        MIN_BIG = 1;
 
     if ($attrs.teacher === 'true') {
       $scope.teacher = true;
@@ -14,20 +15,90 @@ angular.module('app.home')
 
     var bigStreamsRef = new Firebase("https://otaudiodetect.firebaseio.com/classroom");
     $scope.bigStreams = $firebase(bigStreamsRef);
+
+    // 1. load classroom data from firebase
+    // 2. load session information from server
+    // 3. connect to opentok
     $scope.bigStreams.$on('loaded', function() {
-      // if i'm the teacher, overwrite this and put just me as the big stream
-      if ($scope.teacher) {
-        // race condition, opentok will connect later so the taking of ownership cannot happen yet
-        takeOwnership();
-      }
-      // if i'm the student, call a function that iterates over the bigStreams and sets them up
-      else {
-        updateBigStreams();
-      }
-    });
-    $scope.bigStreams.$on('change', function() {
-      // call the function that iterates over the bigStreams and sets them up
-      updateBigStreams();
+      $http.get('/classroom').success(function(data) {
+        OTSession.init(data.apiKey, data.sessionId, data.token, function(err, session) {
+          if (err) throw err;
+
+
+          // OpenTok Events
+          session.on({
+
+            startedToTalk: function(event) {
+              console.log('startedToTalk event fired');
+              event.subscribers.forEach(function(subscriber) {
+                // if not locked and i am a teacher
+                if (!$scope.locked && $scope.teacher) {
+                  // add the stream to bigStreams
+                  console.log('SPEAKING:', subscriber.streamId);
+
+                  // remove the oldest if we don't want any more big
+                  var keys = $scope.bigStreams.$getIndex();
+                  if (keys.length >= MAX_BIG) {
+                    $scope.bigStreams.$remove(keys[0]);
+                  }
+
+                  $scope.bigStreams.$add(subscriber.streamId);
+                }
+              });
+            },
+
+            stoppedToTalk: function(event) {
+              console.log('stoppedToTalk event fired');
+              event.subscribers.forEach(function(subscriber) {
+                // if not locked and i am a teacher
+                if (!$scope.locked && $scope.teacher) {
+                  var keys = $scope.bigStreams.$getIndex();
+                  // if we are already at the minimum, don't continue removing bigs
+                  if (keys.length <= MIN_BIG) {
+                    return;
+                  }
+                  keys.forEach(function(key) {
+                    if (subscriber.streamId == $scope.bigStreams[key]) {
+                      console.log('STOPPED SPEAKING:', subscriber.streamId);
+                      $scope.bigStreams.$remove(key);
+                    }
+                  });
+                }
+              });
+            },
+
+            streamCreated: function(event) {
+              updateBigStreams();
+            }
+          });
+
+        });
+
+        // attach data to scope
+        $scope.streams = OTSession.streams;
+        $scope.publishers = OTSession.publishers;
+
+        // if i'm the teacher, overwrite this and put just me as the big stream
+        if ($scope.teacher) {
+          // how do we know that we already started publishing?!
+          // TODO: only take ownership after we know we are publishing
+          console.log('about to take ownership. publishers: ');
+          console.log($scope.publishers);
+          takeOwnership();
+        }
+        // if i'm the student, call a function that iterates over the bigStreams and sets them up
+        else {
+          updateBigStreams();
+        }
+
+        $scope.bigStreams.$on('change', function() {
+          // call the function that iterates over the bigStreams and sets them up
+          updateBigStreams();
+        });
+
+      }).error(function(data, status) {
+        console.log("An error occurred while retrieving the classroom data.", data, status);
+      });
     });
 
     var takeOwnership = function() {
@@ -36,6 +107,7 @@ angular.module('app.home')
         throw new Error('Publisher was not ready in time');
       }
 
+      // TODO: a better way of knowing then the streamId is available, perhaps with $watch?
       if ($scope.publishers[0].stream) {
         console.log($scope.publishers[0].stream.streamId);
         $scope.bigStreams.$remove();
@@ -74,7 +146,9 @@ angular.module('app.home')
           $el.removeClass('OT_big');
         }
         console.log(OTSession.session.streams);
-        $scope.$emit("otLayout");
+        setTimeout(function() {
+          $scope.$emit("otLayout");
+        }, 10);
       }
 
       // generate bigStreamList
@@ -89,75 +163,30 @@ angular.module('app.home')
         updateStream(stream.streamId);
       });
 
+      // TODO: a better way of knowing then the streamId is available, perhaps with $watch?
       if ($scope.publishers[0].stream) {
         updateStream($scope.publishers[0].stream.streamId);
-        $scope.$emit("otLayout");
+        setTimeout(function() {
+          $scope.$emit("otLayout");
+        }, 10);
       } else {
         $scope.publishers[0].on('streamCreated', function(event) {
           updateStream($scope.publishers[0].stream.streamId);
-          $scope.$emit("otLayout");
+          setTimeout(function() {
+            $scope.$emit("otLayout");
+          }, 10);
         });
       }
-
-      $scope.$emit("otLayout");
 
     };
 
     $scope.locked = true;
     $scope.$watch('locked', function(newValue, oldValue) {
       console.log('locked going from ' + oldValue + ' to ' + newValue);
+      // TODO: check if we are the student of the teacher, if only the teacher presses the lock this doesn't matter
       if (newValue == true) {
         takeOwnership();
       }
-    });
-
-    $http.get('/classroom').success(function(data) {
-      OTSession.init(data.apiKey, data.sessionId, data.token, function(err, session) {
-        if (err) throw err;
-
-        session.on({
-          startedToTalk: function(event) {
-            console.log('startedToTalk event fired');
-            event.subscribers.forEach(function(subscriber) {
-              // if not locked and i am a teacher
-              if (!$scope.locked && $scope.teacher) {
-                // add the stream to bigStreams
-                console.log('SPEAKING:', subscriber.streamId);
-
-                // remove the oldest if we don't want any more big
-                var keys = $scope.bigStreams.$getIndex();
-                if (keys.length >= MAX_BIG) {
-                  $scope.bigStreams.$remove(keys[0]);
-                }
-
-                $scope.bigStreams.$add(subscriber.streamId);
-              }
-            });
-          },
-
-          stoppedToTalk: function(event) {
-            console.log('stoppedToTalk event fired');
-            event.subscribers.forEach(function(subscriber) {
-              // if not locked and i am a teacher
-              if (!$scope.locked && $scope.teacher) {
-                $scope.bigStreams.$getIndex().forEach(function(key) {
-                  if (subscriber.streamId == $scope.bigStreams[key]) {
-                    console.log('STOPPED SPEAKING:', subscriber.streamId);
-                    $scope.bigStreams.$remove(key);
-                  }
-                });
-              }
-            });
-          }
-        });
-
-      });
-
-      $scope.streams = OTSession.streams;
-      $scope.publishers = OTSession.publishers;
-
-    }).error(function(data, status) {
-      console.log("An error occurred while retrieving the classroom data.", data, status);
     });
 
     // this is probably the wrong place to do this, maybe put this in a directive
