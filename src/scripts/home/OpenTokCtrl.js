@@ -13,8 +13,13 @@ angular.module('app.home')
       console.log('i am a student');
     }
 
+    $scope.connected = false;
+    $scope.showWhiteboard = false;
+
     var bigStreamsRef = new Firebase("https://otaudiodetect.firebaseio.com/classroom");
     $scope.bigStreams = $firebase(bigStreamsRef);
+
+    var opentokSession;
 
     // 1. load classroom data from firebase
     // 2. load session information from server
@@ -26,6 +31,7 @@ angular.module('app.home')
 
 
           // OpenTok Events
+          $scope.connected = true;
           session.on({
 
             startedToTalk: function(event) {
@@ -69,8 +75,27 @@ angular.module('app.home')
 
             streamCreated: function(event) {
               updateBigStreams();
+            },
+
+            sessionDisconnected: function() {
+              $scope.connected = false;
             }
           });
+
+          session.on('signal', function(event) {
+            if (event.type === 'signal:otad_whiteboard' && event.from.connectionId !== opentokSession.connection.connectionId ) {
+              if (event.data === 'on') {
+                $scope.showWhiteboard = true;
+              } else if (event.data === 'off') {
+                $scope.showWhiteboard = false;
+              }
+              setTimeout(function () {
+                $scope.$emit("otLayout");
+              }, 10);
+            }
+          });
+
+          opentokSession = session;
 
         });
 
@@ -197,10 +222,23 @@ angular.module('app.home')
       $scope.$emit('otLayout');
     });
 
-    // $scope.toggleWhiteboard = function() {
-    //   $scope.showWhiteboard = ! $scope.showWhiteboard;
-    //   setTimeout(function () {
-    //     $scope.$emit("otLayout");
-    //   }, 10);
-    // };
+    $scope.toggleWhiteboard = function() {
+      $scope.showWhiteboard = !$scope.showWhiteboard;
+      if ($scope.showWhiteboard) {
+        console.log('showing whiteboard');
+        opentokSession.signal({
+          type: "otad_whiteboard",
+          data: "on"
+        });
+      } else {
+        console.log('hiding whiteboard');
+        opentokSession.signal({
+          type: "otad_whiteboard",
+          data: "off"
+        });
+      }
+      setTimeout(function () {
+        $scope.$emit("otLayout");
+      }, 10);
+    };
   }]);

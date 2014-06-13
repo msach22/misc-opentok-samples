@@ -36,16 +36,24 @@
               streamid="{{stream.streamId}}"
               props="{style: {nameDisplayMode: 'off', buttonDisplayMode: 'off'}, resolution: '1280x720', frameRate: 30}">
           </ot-publisher>
+          <ot-whiteboard ng-show="showWhiteboard"
+              ng-if="connected"
+              width="1280"
+              height="960"
+              color="blue"
+              lineWidth="10"
+              ng-class="{OT_big: showWhiteboard}">
+          </ot-whiteboard>
       </ot-layout>
 
       <div class="bottomBar">
         <div class="actions" />
-          <button name="whiteboard"/>
+          <button name="whiteboard" ng-click="toggleWhiteboard()"/>
 
           <% if (teacher) { %>
             <button name="discussion" ng-click="locked = !locked" locked="{{locked}}"/>
           <% } %>
-          
+
         </div>
         <div class="settings">
           <button name="mute" />
@@ -69,8 +77,8 @@
   <script type="text/javascript" src="bower_components/opentok-whiteboard/opentok-whiteboard.min.js"></script>
   <script src="https://cdn.firebase.com/libs/angularfire/0.7.1/angularfire.min.js"></script>
 
-
   <script src="scripts/main.js"></script>
+
   <!-- Google Analytics -->
   <script>
     (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
