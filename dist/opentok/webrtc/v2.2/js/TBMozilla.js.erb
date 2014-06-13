@@ -6,7 +6,7 @@
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
  *
- * Date: June 04 10:23:47 2014
+ * Date: June 11 03:09:00 2014
  */
 
 (function(window) {
@@ -14,7 +14,7 @@
 
   OT.properties = {
     version: 'v2.2.5',         // The current version (eg. v2.0.4) (This is replaced by gradle)
-    build: 'd52c9a1',    // The current build hash (This is replaced by gradle)
+    build: '0de1dd4',    // The current build hash (This is replaced by gradle)
 
     // Whether or not to turn on debug logging by default
     debug: '<%= @debug %>',
@@ -13529,17 +13529,39 @@ OTHelpers.centerElement = function(element, width, height) {
         });
       }
     });
+    
+    var uuid = OT.$.uuid();
 
     OT.Chrome.Behaviour.Widget(this, {
       nodeName: 'div',
-      htmlContent: '<div class="OT_meter-bar"></div>',
+      htmlContent: '<svg width="0" height="0">' +
+          '<defs>' +
+          '<mask id="OT_masking_' + uuid + '">' +
+          '<polygon points="0,0 36,0 36,36" style="fill:white" />' +
+          '</mask>' +
+          '</defs>' +
+          '</svg>' +
+          '<svg class="OT_meter-bar" xmlns="http://www.w3.org/2000/svg" ' +
+          'xmlns:xlink="http://www.w3.org/1999/xlink" width="36" height="36">' +
+          '<image xlink:href="' + OT.properties.assetURL +
+          '/images/rtc/audio-meter-bars.png" width="36" height="36" ' +
+          'mask="url(#OT_masking_' + uuid + ')"></image>' +
+          '</svg>',
       htmlAttributes: {
         className: 'OT_meter'
       },
       onCreate: function() {
-        var meterBarElmt = _domElement.querySelector('.OT_meter-bar');
+        var maskingPolygon = _domElement.querySelector('mask > polygon');
         updateView  = function() {
-          meterBarElmt.style.width = _value * 100 + '%';
+          var mag = _value * 36,
+            x1 = 36 - mag,
+            y1 = 0,
+            x2 = 36,
+            y2 = 0,
+            x3 = 36,
+            y3 = mag;
+          maskingPolygon.setAttribute('points', x1 + ',' + y1 + ' ' + x2 + ',' + y2 + ' ' +
+              x3 + ',' + y3);
         };
       }
     });

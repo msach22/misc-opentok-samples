@@ -530,7 +530,7 @@ position: absolute;
     bottom: 0;
     right: auto;
     width: 34px;
-    height: 34px;    
+    height: 34px;
 }
 
 .OT_archiving-light {
@@ -716,7 +716,7 @@ position: absolute;
 .OT_bar.OT_mode-mini,
 .OT_bar.OT_mode-mini-auto {
     bottom: 0;
-    height: auto;    
+    height: auto;
 }
 
 .OT_mini .OT_name.OT_mode-off,
@@ -755,7 +755,7 @@ position: absolute;
 
 .OT_publisher .OT_opentok,
 .OT_subscriber .OT_opentok {
-    background: url(../images/rtc/buttons.png) 0 -32px no-repeat;    
+    background: url(../images/rtc/buttons.png) 0 -32px no-repeat;
     cursor: default;
     height: 18px;
     left: 8px;
@@ -832,7 +832,8 @@ position: absolute;
 
 /* Default display mode transitions for various chrome elements */
 .OT_publisher .OT_edge-bar-item,
-.OT_subscriber .OT_edge-bar-item {
+.OT_subscriber .OT_edge-bar-item,
+.OT_subscriber .OT_meter {
     -ms-transition-property: top, bottom, opacity;
     -ms-transition-duration: 0.5s;
     -moz-transition-property: top, bottom, opacity;
@@ -852,7 +853,7 @@ position: absolute;
 .OT_subscriber .OT_edge-bar-item.OT_mode-auto,
 .OT_publisher .OT_edge-bar-item.OT_mode-mini-auto,
 .OT_subscriber .OT_edge-bar-item.OT_mode-mini-auto {
-    top: -25px;
+    top: -34px;
     opacity: 0;
 }
 
@@ -869,7 +870,7 @@ position: absolute;
 .OT_publisher .OT_edge-bar-item.OT_edge-bottom.OT_mode-mini-auto,
 .OT_subscriber .OT_edge-bar-item.OT_edge-bottom.OT_mode-mini-auto {
     top: auto;
-    bottom: -25px;
+    bottom: -34px;
 }
 
 .OT_publisher .OT_edge-bar-item.OT_mode-on,
@@ -959,22 +960,26 @@ position: absolute;
 }
 
 .OT_publisher .OT_video-poster {
-    background-image: url(../images/rtc/audioonly-publisher.png);    
+    background-image: url(../images/rtc/audioonly-publisher.png);
 }
 
 .OT_subscriber .OT_video-poster  {
     background-image: url(../images/rtc/audioonly-subscriber.png);
 }
 
-.OT_meter {
-    position: absolute;
-    bottom: 0;
-    height: .5em;
-    width: 100%;
-    background-color: rgba(238, 238, 238, .2);
+.OT_subscriber .OT_bar.OT_mode-on ~ .OT_meter,
+.OT_subscriber:hover .OT_bar.OT_mode-auto ~ .OT_meter {
+    top: 34px;
 }
 
-.OT_meter-bar {
-    height: 100%;
-    background-color: rgba(0, 144, 213, .6);
+.OT_subscriber .OT_meter {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 36px;
+    height: 36px;
+}
+
+.OT_subscriber .OT_meter-bar {
+    background-image: url('../images/rtc/audio-meter-bg.png');
 }
