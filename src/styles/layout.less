@@ -5,6 +5,7 @@
 @header-height: 40px;
 
 @sidebar-width: 335px;
+@sidebar-color: #bdc3c7;
 
 @course-info-height: 60px;
 @course-info-details-color: #ecf0f1;
@@ -13,6 +14,10 @@
 
 @footer-height: 80px;
 @footer-color: #34495e;
+
+@accent-color: #1abc9c;
+
+@image-border-color: #ecf0f1;
 
 /*
  * Header
@@ -38,6 +43,18 @@
 #course-info {
   height: @course-info-height;
   background-color: @course-info-details-color;
+
+  .title {
+    .size(@sidebar-width, @course-info-height);
+    float:left;
+    background-color: @accent-color;
+    color: white;
+    h1 {
+      font-size: 16px;
+      line-height: @course-info-height;
+      text-align: center;
+    }
+  }
 }
 
 
@@ -51,17 +68,44 @@
   width: @sidebar-width;
   bottom: @footer-height;
   overflow: auto;
+  background-color: @sidebar-color;
+  text-align: center;
+  padding: 25px;
+}
 
-  #sidebarTitle {
-    display: block;
-    width: @sidebar-width;
-    height: @course-info-height;
+.course-image {
+  .border-radius(3px);
+  border: 3px solid @image-border-color;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.course-search {
+  position:relative;
+  width: 250px;
+  margin:0 auto;
+  input {
+    .border-radius(3px);
+    padding: 10px;
+    width: 250px;
+    font-size: 14px;
+    border: none;
   }
-
-  #sidebarNav {
-    width: @sidebar-width;
+  button {
+    .size(50px, 40px);
+    .border-top-right-radius(3px);
+    .border-bottom-right-radius(3px);
+    background-color: @accent-color;
+    border:none;
+    position:absolute;
+    right:0;
+    top:0;
+    background-image: url('/images/search.png');
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
   }
 }
+
 
 
 
