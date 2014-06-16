@@ -14,6 +14,7 @@ angular.module('app.home')
     }
 
     $scope.showWhiteboard = false;
+    $scope.muted = false;
 
     var bigStreamsRef = new Firebase("https://otaudiodetect.firebaseio.com/classroom");
     $scope.bigStreams = $firebase(bigStreamsRef);
@@ -218,5 +219,10 @@ angular.module('app.home')
       setTimeout(function() {
         $scope.$emit("otLayout");
       }, 10);
+    };
+
+    $scope.toggleMute = function() {
+      $scope.muted = !$scope.muted;
+      $scope.publishers[0].publishAudio(!$scope.muted);
     };
   }]);
