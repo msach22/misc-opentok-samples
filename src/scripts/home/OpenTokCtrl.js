@@ -86,6 +86,7 @@ angular.module('app.home')
 
           // if i'm the teacher, overwrite this and put just me as the big stream
           if ($scope.teacher) {
+            $scope.whiteboard.$set(0);
             // how do we know that we already started publishing?!
             // TODO: only take ownership after we know we are publishing
             console.log('about to take ownership. publishers: ');
