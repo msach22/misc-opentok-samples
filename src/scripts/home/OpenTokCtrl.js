@@ -21,9 +21,7 @@ angular.module('app.home')
     var whiteboardRef = new Firebase("https://otaudiodetect.firebaseio.com/whiteboard");
     $scope.whiteboard = $firebase(whiteboardRef);
 
-    //var opentokSession;
-
-    // 1. load classroom data from firebase
+    // 1. load classroom data and whiteboard from firebase
     // 2. load session information from server
     // 3. connect to opentok
     $scope.bigStreams.$on('loaded', function() {
@@ -79,21 +77,6 @@ angular.module('app.home')
                 updateBigStreams();
               }
             });
-
-            session.on('signal', function(event) {
-              // if (event.type === 'signal:otad_whiteboard' && event.from.connectionId !== opentokSession.connection.connectionId ) {
-              //   if (event.data === 'on') {
-              //     $scope.showWhiteboard = true;
-              //   } else if (event.data === 'off') {
-              //     $scope.showWhiteboard = false;
-              //   }
-              //   setTimeout(function () {
-              //     $scope.$emit("otLayout");
-              //   }, 10);
-              // }
-            });
-
-            //opentokSession = session;
 
           });
 
