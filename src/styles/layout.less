@@ -43,6 +43,7 @@
 #course-info {
   height: @course-info-height;
   background-color: @course-info-details-color;
+  color: #2e3133;
 
   .title {
     .size(@sidebar-width, @course-info-height);
@@ -53,6 +54,22 @@
       font-size: 16px;
       line-height: @course-info-height;
       text-align: center;
+    }
+  }
+
+  .details {
+    height: @course-info-height;
+    margin-left: @sidebar-width;
+    .display(flex);
+    .justify-content(space-around);
+    .align-items(center);
+
+    &> div {
+      .flex-grow(1);
+      text-align: center;
+      height: @course-info-height;
+      line-height: @course-info-height;
+      border-right: 1px solid #e8e8e8;
     }
   }
 }
@@ -143,7 +160,7 @@
 
   .week {
     font-family: 'robotobold';
-    margin-bottom: 50px;
+    margin-bottom: 20px;
 
     h4 {
       font-size: 12px;
