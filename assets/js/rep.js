@@ -1,6 +1,6 @@
-var dateDiff = 0;
-var DAYSTRING = "dddMMMDDYYYY";
-var ONE_HOUR = 3600000;
+var dateDiff = 0,
+    DAYSTRING = "dddMMMDDYYYY",
+    ONE_HOUR = 3600000;
 
 // Templates
 var user_template = Handlebars.compile($("#user_value_template").html());
