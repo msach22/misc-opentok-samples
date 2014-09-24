@@ -1,7 +1,7 @@
 window.appHelper = {};
-function setDateString(){
-  var datestr = moment().add(dateDiff, 'days').format('ddd MMM DD, YYYY');
-  var daystring = moment().add(dateDiff, 'days').format(DAYSTRING);
+appHelper.setDayAndAvail = function(dayDiff){
+  var datestr = moment().add(dayDiff, 'days').format('ddd MMM DD, YYYY');
+  var daystring = moment().add(dayDiff, 'days').format(DAYSTRING);
   $("#dateHeader").text(datestr);
   $.get("/index.php/availability/"+daystring, function(res){
     var bookings = JSON.parse(res);
@@ -11,15 +11,18 @@ function setDateString(){
       $(".selectableTime.time[data-hour="+hour+"]").addClass('bookedTime');
     }
   });
-}
-function getUTCAppointment(hour){
-  var utc = moment().hour(parseInt(hour)).add(dateDiff, 'days')
+};
+appHelper.getAvailability = function(daystring, cb){
+  $.get("/index.php/availability/"+daystring, function(res){
+    cb(JSON.parse(res));
+  });
+};
+appHelper.getUTCAppointment = function(dayDiff, hour){
+  var utc = moment().hour(parseInt(hour)).add(dayDiff, 'days')
   utc.set('minute', 0);
   utc.set('second', 0);
-  utc.set('millisecond', 0);
   return parseInt(utc.format('X'));
-}
-function getUTCString(utc, format){
+};
+appHelper.getUTCString = function(utc, format){
   return moment(utc).format(format)
-}
-
+};

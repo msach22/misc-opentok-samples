@@ -125,6 +125,7 @@
 <!-- ********** -->
 <!-- ********** -->
 <link rel="stylesheet" href="/assets/css/customer.css">
+<script src="/assets/js/helper.js"></script>
 <script src="/assets/js/customer.js"></script>
 <!-- ********** -->
 <!-- ********** -->
