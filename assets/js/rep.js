@@ -42,7 +42,7 @@ $(".time").click(function(){
   var timestring = getUTCString(utc, "ddd MMM DD, YYYY") + " at " + getUTCString(utc, "hA");
 
   $.get("/index.php/getinfo/"+utc, function(res){
-    var info = JSON.parse(res)[0];
+    var info = JSON.parse(res);
     if(info){
       $("#rightContainer").html(user_template(info));
       $("#startButton").click(function(){
