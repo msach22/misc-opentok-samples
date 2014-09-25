@@ -52,20 +52,18 @@
 <!-- ********** -->
 
 <script>
-  var apiKey = "<?php echo($this->data['apiKey']); ?>";
-  var session_id = "<?php echo($this->data['session_id']); ?>";
-  var token = "<?php echo($this->data['token']); ?>";
-  var property = { width: "100%", height: "100%", insertMode: "append" };
-  var publisher = OT.initPublisher("publisherContainer", property);
-  var session = OT.initSession(apiKey, session_id);
+  var apiKey = "<?php echo($this->data['apiKey']); ?>",
+      session_id = "<?php echo($this->data['session_id']); ?>",
+      token = "<?php echo($this->data['token']); ?>",
+      property = { width: "100%", height: "100%", insertMode: "append" },
+      publisher = OT.initPublisher("publisherContainer", property),
+      session = OT.initSession(apiKey, session_id);
+
   session.connect( token, function(err){
     if(!err){ session.publish(publisher); }
   });
   session.on("streamCreated", function(event){
     session.subscribe(event.stream, 'subscriberContainer',  property);
-  });
-  session.connect(token, function(err){
-    if(!err){ session.publish(publisher); }
   });
 </script>
 </body>

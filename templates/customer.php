@@ -11,6 +11,9 @@
 
 <div class="container top">
   <div class="row">
+    <h1 class="centered headerRow">Schedule your appointment</h1>
+  </div>
+  <div class="row">
     <div class="col-md-1 col-md-offset-3">
       <span class="glyphicon glyphicon-chevron-left dateNavigate" data-dir="left"></span>
     </div>
@@ -122,6 +125,7 @@
 <!-- ********** -->
 <!-- ********** -->
 <link rel="stylesheet" href="/assets/css/customer.css">
+<script src="/assets/js/helper.js"></script>
 <script src="/assets/js/customer.js"></script>
 <!-- ********** -->
 <!-- ********** -->

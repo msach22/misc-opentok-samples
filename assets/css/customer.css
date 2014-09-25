@@ -1,5 +1,11 @@
+.centered{
+  text-align:center;
+}
+.headerRow{
+  margin-bottom: 30px;
+}
 .top{
-  margin-top: 40px;
+  margin-top: 30px;
 }
 .dateNavigate{
   margin-top: 20px;

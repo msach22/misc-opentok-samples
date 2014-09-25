@@ -53,12 +53,8 @@
     <span id="customerComments">{{Comment}}</span>
   </div>
   <div class="userValue">
-  {{#readyAppointment this.Timestamp}}
     <button type="button" id="startButton" class="btn btn-success actionButton">Start Appointment</button>
-  {{/readyAppointment}}
-  {{#oldAppointment this.Timestamp}}
     <button type="button" id="cancelButton" class="btn btn-danger actionButton">Cancel Appointment</button>
-  {{/oldAppointment}}
   </div>
   </div>
 </script>
@@ -102,6 +98,7 @@
 <!-- ********** -->
 <!-- ********** -->
 <link rel="stylesheet" href="/assets/css/rep.css">
+<script src="/assets/js/helper.js"></script>
 <script src="/assets/js/rep.js"></script>
 <!-- ********** -->
 <!-- ********** -->
