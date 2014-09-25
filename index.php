@@ -12,7 +12,7 @@ use OpenTok\Role;
 // Set env vars in /Applications/MAMP/Library/bin/envvars if you are using MAMP
 // MYSQL env: export CLEARDB_DATABASE_URL="mysql://root:root@localhost/tb_schedule
 // MYSQL formate: username:pw@url/database
-$mysql_url = parse_url(getenv("CLEARDB_DATABASE_URL"));
+$mysql_url = parse_url(getenv("MYSQL_URL"));
 $dbname = substr($mysql_url['path'],1);
 $con = mysqli_connect($mysql_url['host'], $mysql_url['user'], $mysql_url['pass']);
 
@@ -87,8 +87,8 @@ function getBaseURL(){
 
 
 // opentok
-$apiKey = getenv('TB_KEY');
-$apiSecret = getenv('TB_SECRET');
+$apiKey = getenv('OPENTOK_KEY');
+$apiSecret = getenv('OPENTOK_SECRET');
 $opentok = new OpenTok($apiKey, $apiSecret);
 
 // setup slim framework
