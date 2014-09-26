@@ -1,4 +1,4 @@
-# Scheduling Starter Kit
+# OpenTok Scheduling Starter Kit
 
 An OpenTok 1-to-1 solution focussed on call scheduling
 
@@ -6,27 +6,34 @@ An OpenTok 1-to-1 solution focussed on call scheduling
 ## Installation
 
 1. Clone the repository.
-1. Set your opentok environment variables `TB_KEY` and `TB_SECRET` with your own key and secret values from the [TokBox Dashboard](https://dashboard.tokbox.com)
-1. Set your opentok environment variable `CLEARDB_DATABASE_URL` with your mysql db url. The format is `mysql://username:password@mysqlurl:port/database_name`
-1. Use [Composer](https://getcomposer.org/) to install dependencies: `composer install`
-1. Use a webserver (such as Apache, nginx, etc) to the `web` directory as the document root. In the case of Apache, the provided `.htaccess` file will help properly handle URL rewriting. See the [Slim Route URL Rewriting Guide](http://docs.slimframework.com/#Route-URL-Rewriting) for more details.
+2. Set the `OPENTOK_KEY` and `OPENTOK_SECRET` environment variables to your OpenTok API key and
+   secret values from the [TokBox Dashboard](https://dashboard.tokbox.com).
+3. Set the `MYSQL_URL` environment variable  with your MySQL database url. The format is
+   `mysql://username:password@mysqlurl:port/database_name`
+4. Install composer [Composer](https://getcomposer.org/).
+5. Use composer to install dependencies: `composer install`
+6. Set the document root for your web server (such as Apache, nginx, etc.) to the root directory
+   of this project. In the case of Apache, the provided `.htaccess` file handles URL rewriting.
+   See the [Slim Route URL Rewriting Guide](http://docs.slimframework.com/#Route-URL-Rewriting)
+   for more details.
 
 ## Usage
 
 ### Customer
 
-1. Visit the URL mapped to the application by your webserver. `tbschedule.com:8888`
-1. Select an appointment time and fill in your information. You should then get an email confirming your slot.
-1. At the time of your appointment, join the chatroom
+1. Visit the URL mapped to the application by your web server. `tbschedule.com:8888`
+2. Select an appointment time and fill in your information. You should then get an email confirming your slot.
+3. At the time of your appointment, join the chatroom.
 
 ### Rep
 1. Have another user (possibly in another window or tab) visit `/rep` url to be the rep.
-1. Rep has the ability to click through and view different appointment. 
-1. Rep selects an appointment and calls customer
+2. Rep has the ability to click through and view different appointment. 
+3. Rep selects an appointment and calls customer
 
 ## Requirements
 
-* Mysql installed and running
+* PHP
+* MySQL
 
 ## Code and Conceptual Walkthrough
 
@@ -83,24 +90,16 @@ An OpenTok 1-to-1 solution focussed on call scheduling
 
 ### Deploying to Heroku
 
-Heroku is a PaaS (Platform as a Service) that makes deploying applications simple and for smaller
-applications free. For that reason, you may choose to experiment with this code  and deploy it using
+Heroku is a PaaS (Platform as a Service) that can use to deploy simple and small applications for free. For that reason, you may choose to experiment with this code and deploy it using
 Heroku.
 
-*  The provided `Procfile` already decribes a web process which can launch this application.
-*  You should avoid commiting configuration and secrets to your code, and instead use Heroku's
-   config functionality.
-*  In order to configure the OpenTok details you need to set the following keys:
+*  The provided `Procfile` describes a web process that launches this application.
+*  Use Heroku config to set the following keys:
    -  `OPENTOK_KEY` - Your OpenTok API Key
    -  `OPENTOK_SECRET` - Your OpenTok API Secret
-*  In order to use the memcached storage, you must have the following keys set as long as you choose
-   Memcachier as your provider (or replace them inside `config/memcached.php` if you choose
-   another). The easiest way to set them is to simply run `heroku addons:add memcachier:dev`.
-   -  `MEMCACHIER_SERVERS` - A comma-separated list of servers, each of which follow the `host:port`
-      format
-   -  `MEMCACHIER_USERNAME` - The SASL username for authentication
-   -  `MEMCACHIER_PASSWORD` - The SASL password for authentication
-*  The Slim application will only start reading its Heroku's config when its mode is set to
-   `'production'`. This can be done using Heroku config by setting the following key:
+   -  `MYSQL_URL` - This is the MySQL database URL on Heroko. This is provided when you add
+   the [ClearDB add-on](https://devcenter.heroku.com/articles/cleardb) for Heroku.
    -  `SLIM_MODE` - Set this to `production` when the environment variables should be used to
       configure the application.
+   The Slim application will only start reading its Heroku's config when its mode is set to
+   `'production'`.
