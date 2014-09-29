@@ -65,38 +65,64 @@ An OpenTok 1-to-1 solution focussed on call scheduling
   * The arrows on the page, which use the class `dateNavigate`, help customers navigate through the
     different dates. Whenever customer clicks on `.dateNavigate`, the JavaScript first computes the
     offset (`dayDiff`) from current time and then calls the `setDayAndAvail()` function.
-  * `setDayAndAvail()` computes the `daystring` value and sends a request to the server at the `/availability/:daystring` endpoint in `index.php` to get a list of unavailable appointments.
-    * `index.php` then queries the table for all appointment timestamps in the table that have the same `daystring` value and returns the array as JSON.
-    * When the response from server is received, all unavailable dates are blacked out by removing the 'selectableTime' class
-  * When user clicks on an available time (which have the `time` class), the form is shown for user to input information. The form data is submitted to the server at the `/schedule` endpoint.
-    * When `index.php` gets the POST request, it generates an OpenTok ID, stores it along with the customer's information in the table, and sends the customer an email to confirm the appointment. It then sends the customer to `templates/schedule.php`, which is a simple appointment confirmed page.
-* At the time of the appointment, the customer would click the link in the email to navigate to `/chat/:session_id` endpoint defined in `index.php`.
-  * When the customer enters the chatroom, `index.php` retrieves the OpenTok session ID from the URL, generates a valid token for that session ID, and renders `templates/chat.php`.
-  * `chat.php` shows the chatroom. It connects to the OpenTok session, publishes video to the session, and subscribes to videos in the session.
+  * `setDayAndAvail()` computes the `daystring` value and sends a request to the server at the
+    `/availability/:daystring` endpoint in `index.php` to get a list of unavailable appointments.
+    * `index.php` then queries the table for all appointment timestamps in the table that have the
+      same `daystring` value and returns the array as JSON.
+    * When the response from server is received, all unavailable dates are blacked out by removing
+      the 'selectableTime' class
+  * When user clicks on an available time (which have the `time` class), the form is shown for user
+    to input information. The form data is submitted to the server at the `/schedule` endpoint.
+    * When `index.php` gets the POST request, it generates an OpenTok ID, stores it along with the
+      customer's information in the table, and sends the customer an email to confirm the
+      appointment. It then sends the customer to `templates/schedule.php`, which is a simple
+      appointment confirmed page.
+* At the time of the appointment, the customer would click the link in the email to navigate to
+  `/chat/:session_id` endpoint defined in `index.php`.
+  * When the customer enters the chatroom, `index.php` retrieves the OpenTok session ID from the
+    URL, generates a valid token for that session ID, and renders `templates/chat.php`.
+  * `chat.php` shows the chatroom. It connects to the OpenTok session, publishes video to the
+    session, and subscribes to videos in the session.
 
 ### Representative
-* The representative starts by going to `/rep`, which is an endpoint defined in `index.php`, and renders `templates/rep.php`.
+* The representative starts by going to `/rep`, which is an endpoint defined in `index.php`, and
+  renders `templates/rep.php`.
 * `rep.php` is a simple HTML of the representative page.
-  * The page has a sidebar that shows a list of appointment times for that day and an area to display information about that appointment and allows the representative to video chat with the customer.
+  * The page has a sidebar that shows a list of appointment times for that day and an area to
+    display information about that appointment and allows the representative to video chat with
+    the customer.
 * All styling is located in `assets/css/rep.css`
 * `assets/js/rep.js` contains the JavaScript that manages the customer's interaction with the page
-  * Like the customer page, the arrows on the sidebar has class `dateNavigate` and help reps navigate through the different dates. Whenever representative clicks `.dateNavigate`, the JavaScript computes the offset (`dayDiff`) from the current time and calls the `setDayAndAvail()` function.
-  * `setDayAndAvail()` computes the `daystring` and sends a request to the server at the `/availability/:daystring` endpoint in `index.php` to get a list of unavailable appointments.
-    * `index.php` then queries the table for all appointments' timestamp with the same `daystring` value and returns the array as JSON.
-    * When the response from server is received, the class `bookedTime` is added to all booked dates, which highlights them to indicate when there is an appointment booked.
-  * When the representative clicks  a time, a request is sent to `index.php` at the `/getinfo/:timestamp` endpoint.
-    * `index.php` then queries the table and retrieves the customer information for that time and returns a JSON response with the customer's information.
-    * When the response is received, the customer's information is displayed on the page. If the current time is within an hour of the appointment time, a `start chat` button appears.
-* At the time of the appointment, the representative clicks the appointment time and the start chat button. The main view is replaced with an iframe of the same chatroom that the customer would see.
-* If the representative clicks the cancel appointment button, a request is sent to `index.php` at the `/cancel/:timestamp` endpoint.
-  * `index.php` will look up that timestamp, retrieve the customer information, delete that row in the table, and send an email to the customer indicating that the appointment has been canceled.
+  * Like the customer page, the arrows on the sidebar has class `dateNavigate` and help reps
+    navigate through the different dates. Whenever representative clicks `.dateNavigate`, the
+    JavaScript computes the offset (`dayDiff`) from the current time and calls the
+    `setDayAndAvail()` function.
+  * `setDayAndAvail()` computes the `daystring` and sends a request to the server at the
+    `/availability/:daystring` endpoint in `index.php` to get a list of unavailable appointments.
+    * `index.php` then queries the table for all appointments' timestamp with the same `daystring`
+       value and returns the array as JSON.
+    * When the response from server is received, the class `bookedTime` is added to all booked
+      dates, which highlights them to indicate when there is an appointment booked.
+  * When the representative clicks  a time, a request is sent to `index.php` at the
+    `/getinfo/:timestamp` endpoint.
+    * `index.php` then queries the table and retrieves the customer information for that time and
+      returns a JSON response with the customer's information.
+    * When the response is received, the customer's information is displayed on the page. If the
+      current time is within an hour of the appointment time, a `start chat` button appears.
+* At the time of the appointment, the representative clicks the appointment time and the start chat
+  button. The main view is replaced with an iframe of the same chatroom that the customer would see.
+* If the representative clicks the cancel appointment button, a request is sent to `index.php` at
+  the `/cancel/:timestamp` endpoint.
+  * `index.php` will look up that timestamp, retrieve the customer information, delete that row in
+    the table, and send an email to the customer indicating that the appointment has been canceled.
 
 
 ## Appendix
 
 ### Deploying to Heroku
 
-Heroku is a PaaS (Platform as a Service) that can use to deploy simple and small applications for free. For that reason, you may choose to experiment with this code and deploy it using
+Heroku is a PaaS (Platform as a Service) that can use to deploy simple and small applications for
+free. For that reason, you may choose to experiment with this code and deploy it using
 Heroku.
 
 *  The provided `Procfile` describes a web process that launches this application.
