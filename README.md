@@ -22,7 +22,8 @@ An OpenTok 1-to-1 solution focussed on call scheduling
 ### Customer
 
 1. Visit the URL mapped to the application by your web server. `tbschedule.com:8888`
-2. Select an appointment time and fill in your information. You should then get an email confirming your slot.
+2. Select an appointment time and fill in your information. You should then get an email confirming
+   your appointment.
 3. At the time of your appointment, join the chatroom.
 
 ### Representative
@@ -46,8 +47,10 @@ An OpenTok 1-to-1 solution focussed on call scheduling
   * Email -- the customer's email address, used to send appointment confirmation and cancellations
   * Comment -- The customer's comment about the things he/she would like to talk to the rep about
   * Timestamp -- A timestamp of the customer's appointment time
-  * Daystring -- A string representing the day of the appointment, used to look up the availability on that day
-  * Sessionid - The OpenTok session ID that both the customer and the representative connect to at the time of the appointment
+  * Daystring -- A string representing the day of the appointment, used to look up the availability
+    on that day
+  * Sessionid - The OpenTok session ID that both the customer and the representative connect to at
+    the time of the appointment
   * Timestring - The appointment time in a human readable format
 * All end points are created in `index.php`
 
@@ -57,8 +60,11 @@ An OpenTok 1-to-1 solution focussed on call scheduling
   * The page shows a list of appointment times for that day.
   * When the customer clicks on an appointment, a form prompts for the customer's information.
 * All styling is located in `assets/css/customer.css`
-* `assets/js/customer.js` contains the JavaScript that manages the customer's interaction with the page.
-  * The arrows on the page, which use the class `dateNavigate`, help customers navigate through the different dates. Whenever customer clicks on `.dateNavigate`, the JavaScript first computes the offset (`dayDiff`) from current time and then calls the `setDayAndAvail()` function.
+* `assets/js/customer.js` contains the JavaScript that manages the customer's interaction with
+  the page.
+  * The arrows on the page, which use the class `dateNavigate`, help customers navigate through the
+    different dates. Whenever customer clicks on `.dateNavigate`, the JavaScript first computes the
+    offset (`dayDiff`) from current time and then calls the `setDayAndAvail()` function.
   * `setDayAndAvail()` computes the `daystring` value and sends a request to the server at the `/availability/:daystring` endpoint in `index.php` to get a list of unavailable appointments.
     * `index.php` then queries the table for all appointment timestamps in the table that have the same `daystring` value and returns the array as JSON.
     * When the response from server is received, all unavailable dates are blacked out by removing the 'selectableTime' class
