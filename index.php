@@ -13,8 +13,8 @@ use OpenTok\Role;
  * -----------------------------------------------------------------------------------------------*/
 $config_array = parse_ini_file("config.ini");
 $mysql_url = getenv("MYSQL_URL") ? : $config_array['MYSQL_URL'];
-$sendgrid_user = getenv('SENDGRID_USER') ? : $config_array['SENDGRID_USER'];
-$sendgrid_password   = getenv('SENDGRID_PW') ? : $config_array['SENDGRID_PW'];        // SMTP account password
+$gmail_user = getenv('GMAIL_USER') ? : $config_array['GMAIL_USER'];
+$gmail_pw   = getenv('GMAIL_PW') ? : $config_array['GMAIL_PW'];        // SMTP account password
 $apiKey = getenv('OPENTOK_KEY') ? : $config_array['OPENTOK_KEY'];
 $apiSecret = getenv('OPENTOK_SECRET') ? : $config_array['OPENTOK_SECRET'];
 
@@ -60,17 +60,16 @@ function sendQuery($query){
 
 // Email setup
 $mail = new PHPMailer();
-$mail -> IsSMTP();
-$mail -> Host       = "demo.tokbox.com"; // SMTP server
+$mail->IsSMTP();
 $mail->SMTPDebug  = 0;                     // enables SMTP debug information (for testing)
                                            // 1 = errors and messages
                                            // 2 = messages only
 $mail->SMTPAuth   = true;                  // enable SMTP authentication
-$mail->SMTPSecure = "tls";
-$mail->Host       = "smtp.sendgrid.net"; // sets the SMTP server
-$mail->Port       = 587;                    // set the SMTP port for the GMAIL server
-$mail->Username   = $sendgrid_user; // SMTP account username
-$mail->Password   = $sendgrid_password;        // SMTP account password
+$mail->SMTPSecure = "ssl";
+$mail->Host       = "smtp.gmail.com"; // sets the SMTP server
+$mail->Port       = 465;                    // set the SMTP port for the GMAIL server
+$mail->Username   = $gmail_user; // SMTP account username
+$mail->Password   = $gmail_pw;        // SMTP account password
 
 function sendEmail($fromName, $fromEmail, $toName, $toEmail, $subject, $body){
   global $mail;

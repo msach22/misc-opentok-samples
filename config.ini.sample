@@ -1,8 +1,8 @@
 ; This is a sample configuration file
-; Setup credentials here!
+; Comments start with ';', as in php.ini
 
-SENDGRID_USER ='admin@tokbox.com'
-SENDGRID_PW ='t0kb0x!!'
-MYSQL_URL = 'mysql://root:root@localhost:8889/tokbox'
-OPENTOK_KEY = '44971932'
-OPENTOK_SECRET ='64c1e0044b44d1625a473ae7ac4ce06e5a131157'
+GMAIL_USER = 'your gmail username to send email'
+GMAIL_PW ='your gmail password used to deliver email'
+MYSQL_URL = 'mysql://username:password@hostname:port/database'
+OPENTOK_KEY = 'OpenTokKey'
+OPENTOK_SECRET ='OpenTokSecret'
