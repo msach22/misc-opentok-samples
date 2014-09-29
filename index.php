@@ -8,11 +8,21 @@ use OpenTok\OpenTok;
 use OpenTok\Session;
 use OpenTok\Role;
 
+/* ------------------------------------------------------------------------------------------------
+ * Configuration
+ * -----------------------------------------------------------------------------------------------*/
+$config_array = parse_ini_file("config.ini");
+$mysql_url = getenv("MYSQL_URL") ? : $config_array['MYSQL_URL'];
+$sendgrid_user = getenv('SENDGRID_USER') ? : $config_array['SENDGRID_USER'];
+$sendgrid_password   = getenv('SENDGRID_PW') ? : $config_array['SENDGRID_PW'];        // SMTP account password
+$apiKey = getenv('OPENTOK_KEY') ? : $config_array['OPENTOK_KEY'];
+$apiSecret = getenv('OPENTOK_SECRET') ? : $config_array['OPENTOK_SECRET'];
+
 // mysql - replace user/pw and database name
 // Set env vars in /Applications/MAMP/Library/bin/envvars if you are using MAMP
 // MYSQL env: export CLEARDB_DATABASE_URL="mysql://root:root@localhost/tb_schedule
 // MYSQL formate: username:pw@url/database
-$mysql_url = parse_url(getenv("MYSQL_URL"));
+$mysql_url = parse_url($mysql_url);
 $dbname = substr($mysql_url['path'],1);
 $con = mysqli_connect($mysql_url['host'], $mysql_url['user'], $mysql_url['pass']);
 
@@ -59,8 +69,8 @@ $mail->SMTPAuth   = true;                  // enable SMTP authentication
 $mail->SMTPSecure = "tls";
 $mail->Host       = "smtp.sendgrid.net"; // sets the SMTP server
 $mail->Port       = 587;                    // set the SMTP port for the GMAIL server
-$mail->Username   = getenv('SENDGRID_USER'); // SMTP account username
-$mail->Password   = getenv('SENDGRID_PW');        // SMTP account password
+$mail->Username   = $sendgrid_user; // SMTP account username
+$mail->Password   = $sendgrid_password;        // SMTP account password
 
 function sendEmail($fromName, $fromEmail, $toName, $toEmail, $subject, $body){
   global $mail;
@@ -87,8 +97,6 @@ function getBaseURL(){
 
 
 // opentok
-$apiKey = getenv('OPENTOK_KEY');
-$apiSecret = getenv('OPENTOK_SECRET');
 $opentok = new OpenTok($apiKey, $apiSecret);
 
 // setup slim framework

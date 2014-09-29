@@ -6,6 +6,7 @@ An OpenTok 1-to-1 solution focussed on call scheduling
 ## Installation
 
 1. Clone the repository.
+2. Rename   `config.ini.sample` to `config.ini` and configure your credentials:
 2. Set the `OPENTOK_KEY` and `OPENTOK_SECRET` environment variables to your OpenTok API key and
    secret values from the [TokBox Dashboard](https://dashboard.tokbox.com).
 3. Set the `MYSQL_URL` environment variable with your MySQL database URL. The format is
