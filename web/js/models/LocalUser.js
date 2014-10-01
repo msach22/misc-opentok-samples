@@ -4,13 +4,8 @@
 /* global Backbone, _, log, alert */
 /* exported LocalUser */
 
-// Declare dependencies and prevent leaking into global scope
-(function(
-           exports,                 // Environment
-           Backbone, _, log,        // External libraries
-                                    // Application modules
-           undefined
-         ) {
+// Prevent leaking into global scope
+!(function(exports, undefined) {
 
   exports.LocalUser = Backbone.Model.extend({
 
@@ -187,4 +182,4 @@
   exports.LocalUser.prototype.connectedStatuses = _.without(exports.LocalUser.prototype.allStatuses,
                                                             'offline');
 
-}(window, Backbone, _, log));
+}(window));

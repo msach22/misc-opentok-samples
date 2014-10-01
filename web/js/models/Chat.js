@@ -4,13 +4,8 @@
 /* global OT, Backbone, _, log */
 /* exported Chat */
 
-// Declare dependencies and prevent leaking into global scope
-(function(
-           exports,                 // Environment
-           OT, Backbone, _, log,    // External libraries
-                                    // Application modules
-           undefined
-         ) {
+// Prevent leaking into global scope
+!(function(exports, undefined) {
 
   exports.Chat = Backbone.Model.extend({
 
@@ -146,4 +141,4 @@
 
   });
 
-}(window, OT, Backbone, _, log));
+}(window));

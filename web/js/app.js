@@ -5,20 +5,8 @@
 /* global LocalUser, BuddyList, InvitationList, UserInfoView, ConnectModalView, BuddyListView */
 /* global InvitationListView, ChatView */
 
-// Declare dependencies and prevent leaking into global scope
-(function(
-           exports, doc,            // Environment
-           $, _, OT, Backbone, log, // External libraries
-           LocalUser,               // Application modules
-           BuddyList,
-           InvitationList,
-           UserInfoView,
-           ConnectModalView,
-           BuddyListView,
-           InvitationListView,
-           ChatView,
-           undefined
-         ) {
+// Prevent leaking into global scope
+!(function(exports, doc, $, undefined) {
 
   var App = exports.App = {
 
@@ -91,6 +79,5 @@
   _.extend(App, Backbone.Events);
   App.initialize();
 
-}(window, window.document, jQuery, _, OT, Backbone, log, LocalUser, BuddyList, InvitationList,
-  UserInfoView, ConnectModalView, BuddyListView, InvitationListView, ChatView));
+}(window, window.document, jQuery));
 

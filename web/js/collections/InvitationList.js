@@ -1,17 +1,12 @@
 /* -----------------------------------------------------------------------------------------------
  * Invitation List Collection
  * ----------------------------------------------------------------------------------------------*/
-/* global OT, Backbone, _, log, alert */
+/* global OT, Backbone, log, alert */
 /* global Invitation */
 /* exported InvitationList */
 
-// Declare dependencies and prevent leaking into global scope
-(function(
-           exports,                 // Environment
-           OT, Backbone, _, log,    // External libraries
-           Invitation,              // Application modules
-           undefined
-         ) {
+// Prevent leaking into global scope
+!(function(exports, undefined) {
 
   exports.InvitationList = Backbone.Collection.extend({
 
@@ -334,4 +329,4 @@
 
   });
 
-}(window, OT, Backbone, _, log, Invitation));
+}(window));

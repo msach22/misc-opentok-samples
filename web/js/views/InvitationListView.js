@@ -4,13 +4,8 @@
 /* global jQuery, Backbone, _, log */
 /* exported InvitationListView */
 
-// Declare dependencies and prevent leaking into global scope
-(function(
-           exports,                 // Environment
-           $, Backbone, _, log,     // External libraries
-                                    // Application modules
-           undefined
-         ) {
+// Prevent leaking into global scope
+!(function(exports, $, undefined) {
 
   exports.InvitationListView = Backbone.View.extend({
 
@@ -62,4 +57,4 @@
 
   });
 
-}(window, jQuery, Backbone, _, log));
+}(window, jQuery));

@@ -1,17 +1,12 @@
 /* -----------------------------------------------------------------------------------------------
  * Buddy List Collection
- * ----------------------------------------------------------------------------------------------*/
-/* global Backbone, _, log */
+ * --------------------------------------------------------------------------------------------*/
+/* global Backbone, log */
 /* global RemoteUser */
 /* exported BuddyList */
 
-// Declare dependencies and prevent leaking into global scope
-(function(
-           exports,                 // Environment
-           Backbone, _, log,        // External libraries
-           RemoteUser,              // Application modules
-           undefined
-         ) {
+// Prevent leaking into global scope
+!(function(exports, undefined) {
 
   exports.BuddyList = Backbone.Collection.extend({
 
@@ -128,4 +123,4 @@
 
   });
 
-}(window, Backbone, _, log, RemoteUser));
+}(window));

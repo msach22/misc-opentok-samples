@@ -5,14 +5,8 @@
 /* global Chat */
 /* exported ChatView */
 
-// Declare dependencies and prevent leaking into global scope
-(function(
-           exports,                 // Environment
-           $, Backbone, _, log,     // External libraries
-           Chat,                    // Application modules
-           undefined
-         ) {
-
+// Prevent leaking into global scope
+!(function(exports, $, undefined) {
 
   exports.ChatView = Backbone.View.extend({
 
@@ -75,7 +69,7 @@
         self.model = null;
         self.render();
         self.dispatcher.trigger('chatEnded');
-      }, 4000);
+      }, 2000);
       this.$('.waiting').remove();
       this.$('.ending').removeClass('hidden');
     },
@@ -86,4 +80,4 @@
 
   });
 
-}(window, jQuery, Backbone, _, log, Chat));
+}(window, jQuery));
