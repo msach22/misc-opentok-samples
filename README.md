@@ -57,15 +57,16 @@ you have not already gotten familiar with the code in that project, consider doi
 continuing. Slim is a minimalistic PHP framework, so its patterns can be applied to other
 frameworks and even other languages.
 
-In addition, the [Backbone.js](http://documentcloud.github.io/backbone/) library is used for client
-side functionality. It is a basic MV* library, and while its helpful in laying some groundwork for
-the client, the same functionality could be achieved with other libraries and frameworks or even
-with no framework at all. Along with Backbone, the client makes use of its dependencies:
-[jQuery](http://jquery.com/), and [Lodash](http://lodash.com/). Lodash is a library that is
-compatible with Underscore.js but has better performance, and its also used for view templating.
+In addition, the app uses [Backbone.js](http://documentcloud.github.io/backbone/) library for
+client-side functionality. It is a basic MV* library, and while it's helpful in laying some
+groundwork for the client, the same functionality could be achieved with other libraries and
+frameworks or even with no framework at all. Along with Backbone, the client makes use of its
+dependencies: [jQuery](http://jquery.com/), and [Lodash](http://lodash.com/). Lodash is a library
+that is compatible with Underscore.js but has better performance, and it is also used for view
+templating.
 
-Lastly, [Bootstrap](http://getbootstrap.com/) is used to help style the UI and for reusable
-components such as buttons and modals.
+Lastly, the app uses [Bootstrap](http://getbootstrap.com/) to help style the UI and for reusable
+components, such as buttons and modals.
 
 ### Concepts
 
@@ -83,7 +84,7 @@ This list of remote users is called the **buddies list**. When a user joins the 
 name), that client sends a signal to the presence session with details about the user. Each other
 user stores the remote user's data and state.
 
-A **local user** is the user who is using the application on the local browser.
+A **local user** is the user who is using the application in the local browser.
 
 Each users state changes based on chat invitations and ongoing chat sessions. For example, the
 user's state may be unavailable, outgoingInvitePending, or chatting. The application uses the
@@ -102,7 +103,7 @@ The server responds in a RESTful manner to a few different paths. Each path is g
 in the Slim application and is individually described below:
 
 *  `GET /presence` -- The server returns the API key and the session ID for the presence session as
-   a JSON encoded response. Notably, the token is not generated. 
+   a JSON-encoded response. Notably, the token is not generated.
 
 *  `POST /users` -- In order for a user to connect to the presence session, they must post the
    required details about themselves to this endpoint. In this case, the required details just
@@ -114,7 +115,7 @@ in the Slim application and is individually described below:
    in adding authentication for the user, you would do so in this handler.
 
 *  `POST /chats` -- When a user chooses to invite another user to a chat, it receives its the chat's
-   representation from this handler. In this handler, the OpenTok PHP library is used to create a new
+   representation from this handler. This handler uses the OpenTok PHP library to create a new
    session and return its ID along with the API key and a token. The token is unique for each
    participant in the chat. Since there is no authentication in this application, there is no
    opportunity to perform authorization in the chat. If there was, you could use this handler to
@@ -130,8 +131,8 @@ in the Slim application and is individually described below:
 
 ### Client
 
-The client code is divided into separate files that each define a "class". Each class is described
-below.
+The client JavaScript code is divided into separate files that each define a Backbone object used by
+the app. These are described below.
 
 #### App (web/js/app.js)
 
@@ -174,9 +175,9 @@ otherwise.
 
 #### BuddyList (web/js/collections/BuddyList.js)
 
-The BuddyList in a collection of RemoteUser model objects. Its responsibility is to encapsulate
-creation and deletion of remote users by receiving signals from the presence session. It also
-notifies other objects when the availability of a remote user changes.
+The BuddyList is a collection of RemoteUser model objects. It encapsulates creation and deletion of
+remote users by receiving signals from the presence session. It also notifies other objects when the
+availability of a remote user changes.
 
 #### RemoteUser (web/js/models/RemoteUser.js)
 
@@ -193,13 +194,13 @@ created.
 #### InvitationList (web/js/collections/InvitationList.js)
 
 The InvitationList is a collection of Invitation model objects. Its responsibility is to encapsulate
-the invitation flow and rules regarding how to handle incoming and outgoing invitations. It uses the
-presence session to send and recieve invitations with signaling.
+the invitation flow and rules regarding how to handle incoming and outgoing invitations. It uses
+signaling in the presence session to send and receive invitations.
 
 #### Invitation (web/js/models/Invitation.js)
 
 The Invitation is a model that represents either an incoming or an outgoing invitation. Each
-invitaiton has a remote user associated with it. This class encapsulates requesting chat data from
+invitation has a remote user associated with it. This class encapsulates requesting chat data from
 the server and allows other objects to query for that data.
 
 #### ChatView (web/js/views/ChatView.js)
@@ -253,4 +254,3 @@ for free. For that reason, you may choose to experiment with this code and deplo
 
    You should avoid committing configuration and secrets to your code, and instead use Heroku's
    config functionality.
-
