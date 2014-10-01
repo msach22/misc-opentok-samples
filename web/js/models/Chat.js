@@ -18,7 +18,14 @@
       subscriberName: null
     },
 
-    videoProperties: { insertMode: 'append', width: '100%', height: '100%' },
+    videoProperties: {
+      insertMode: 'append',
+      width: '100%',
+      height: '100%',
+      style: {
+        buttonDisplayMode: 'off'
+      }
+    },
 
     initialize: function(attrs, options) {
       if (!options.localUser) {
@@ -49,7 +56,8 @@
         self.session.on('sessionConnected', self.sessionConnected, self)
                     .on('sessionDisconnected', self.sessionDisconnected, self)
                     .on('streamCreated', self.streamCreated, self)
-                    .on('streamDestroyed', self.streamDestroyed, self);
+                    .on('connectionCreated', self.connectionCreated, self)
+                    .on('connectionDestroyed', self.connectionDestroyed, self);
         self.session.connect(self.invitation.get('token'));
 
         self.publisher = OT.initPublisher(publisherEl, self.videoProperties);
@@ -80,6 +88,7 @@
       this.subscriberEl = null;
       this.publisher = null;
       this.subscriber = null;
+      this.remoteConnection = null;
       this.trigger('ended');
     },
 
@@ -91,13 +100,21 @@
       this.trigger('subscriberJoined');
     },
 
-    streamDestroyed: function(event) {
-      log.info('Chat: streamDestroyed');
-      if (event.stream.streamId === this.subscriber.stream.streamId) {
+    connectionCreated: function(event) {
+      log.info('Chat: connectionCreated');
+      if (event.connection.connectionId !== this.session.connection.connectionId) {
+        log.info('Chat: remote user has connected to chat');
+        this.remoteConnection = event.connection;
+      }
+    },
+
+    connectionDestroyed: function(event) {
+      log.info('Chat: connectionDestroyed');
+      if (event.connection.connectionId === this.remoteConnection.connectionId) {
         log.info('Chat: remote user has left the chat, ending');
         this.end();
       } else {
-        log.warn('Chat: streamDestroyed but was not equal to subscriber stream');
+        log.warn('Chat: connectionDestroyed but was not equal to remote user connection');
       }
     },
 

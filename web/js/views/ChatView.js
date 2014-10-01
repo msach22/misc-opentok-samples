@@ -62,21 +62,22 @@
       this.model.start(this.$('.publisher')[0], this.$('.subscriber')[0]);
     },
 
-    chatStarted: function() {
-      // TODO: remove waiting to start blurb from DOM
-    },
-
     subscriberJoined: function() {
-      // TODO: remove waiting for subscriberName blurb from DOM
+      this.$('.waiting').remove();
     },
 
     chatEnded: function() {
-      this.model.off('started', this.chatStarted);
-      this.model.off('ended', this.chatEnded);
-      this.model = null;
-      this.render();
-      this.dispatcher.trigger('chatEnded');
-      // TODO: maybe show something for a couple seconds to explain that the chat just ended
+      var self = this;
+
+      setTimeout(function() {
+        self.model.off('started', self.chatStarted);
+        self.model.off('ended', self.chatEnded);
+        self.model = null;
+        self.render();
+        self.dispatcher.trigger('chatEnded');
+      }, 4000);
+      this.$('.waiting').remove();
+      this.$('.ending').removeClass('hidden');
     },
 
     endButtonClicked: function() {

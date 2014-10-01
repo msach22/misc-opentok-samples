@@ -120,7 +120,16 @@
         <div class="panel-body video-holder">
           <div class="subscriber"></div>
           <div class="publisher"></div>
-          <button type="button" class="btn btn-danger end-button">End Chat</button>
+          <div class="bottom-bar">
+            <button type="button" class="btn btn-danger end-button">End Chat</button>
+          </div>
+          <div class="waiting">
+            <div class="spinner"></div>
+            <p>Waiting for <%- subscriberName %></p>
+          </div>
+          <div class="ending hidden">
+            <p>Your chat with <%- subscriberName %> has ended</p>
+          </div>
         </div>
       <% } else { %>
         <div class="panel-heading">
