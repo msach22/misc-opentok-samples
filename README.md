@@ -65,8 +65,8 @@ dependencies: [jQuery](http://jquery.com/), and [Lodash](http://lodash.com/). Lo
 that is compatible with Underscore.js but has better performance, and it is also used for view
 templating.
 
-Lastly, the app uses [Bootstrap](http://getbootstrap.com/) is used to help style the UI and for
-reusable components, such as buttons and modals.
+Lastly, the app uses [Bootstrap](http://getbootstrap.com/) to help style the UI and for reusable
+components, such as buttons and modals.
 
 ### Concepts
 
