@@ -235,12 +235,12 @@
         return;
       }
 
+      this.remove(invitation);
+
       // Decline any incoming invitations
       this.each(function(otherInvitation, index) {
         self.declineInvitation(index);
       });
-
-      this.remove(invitation);
 
       // Notify other objects that an invitation has been accepted (LocalUser will need to change
       // status, ChatView will need to create a new Chat)
@@ -257,11 +257,13 @@
       // Parse the arguments to decide to do a lookup for the Invitation by index or by connection
       if (typeof arguments[0] === 'number') {
 
+        log.info('InvitationList: declineInvitation at index', arguments[0]);
         // Lookup the invitation by index
         invitation = this.at(arguments[0]);
 
       } else if (arguments[0] instanceof OT.Connection) {
 
+        log.info('InvitationList: declineInvitation from connection', arguments[0]);
         // Lookup the invitation by connection
         invitation = this.find(function(i) {
           return i.get('remoteUser').connection === arguments[0];
