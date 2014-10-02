@@ -1,7 +1,4 @@
 <?php
-// make sure these settings are set in php.ini
-// display_errors = On
-//phpinfo() 
 
 require '../vendor/autoload.php';
 use OpenTok\OpenTok;
@@ -14,15 +11,13 @@ $mysql_url = getenv("MYSQL_URL") ? : $config_array['MYSQL_URL'];
 $apiKey = getenv('OPENTOK_KEY') ? : $config_array['OPENTOK_KEY'];
 $apiSecret = getenv('OPENTOK_SECRET') ? : $config_array['OPENTOK_SECRET'];
 
-
-
 // mysql - replace user/pw and database name
 // Set env vars in /Applications/MAMP/Library/bin/envvars if you are using MAMP
 // MYSQL env: export CLEARDB_DATABASE_URL="mysql://root:root@localhost/tb_schedule
-// MYSQL formate: username:pw@url/database
+// MYSQL format: username:pw@url/database
 $mysql_url = parse_url($mysql_url);
 $dbname = substr($mysql_url['path'],1);
-$con = mysqli_connect($mysql_url['host'], $mysql_url['user'], $mysql_url['pass']);
+$con = mysqli_connect($mysql_url['host'] . ':' . $mysql_url['port'], $mysql_url['user'], $mysql_url['pass']);
 
 // Check connection
 if (mysqli_connect_errno()) {
