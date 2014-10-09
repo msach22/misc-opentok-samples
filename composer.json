@@ -1,5 +1,5 @@
 {
-    "name": "opentok/buddytok-php",
+    "name": "opentok/presencekit-php",
     "description": "An example OpenTok 1to1 application with Presence",
     "license": "MIT",
     "keywords": [

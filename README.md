@@ -1,4 +1,4 @@
-# BuddyTok
+# PresenceKit
 
 An OpenTok 1-to-1 solution focussed on adding presence to an application
 
