@@ -1,4 +1,4 @@
-# OpenTok LinkTok Starter Kit
+# OpenTok Link-Based Conversation Starter Kit
 
 An OpenTok 1-to-1 solution focussed on link sharing
 

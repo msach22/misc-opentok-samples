@@ -9,7 +9,13 @@
     <div class="userValue">
       <span class="header">ShareLink: </span>
       <span id="customerName">
-        http://linktok.com:8888/index.php/<?php echo($this->data['roomname']); ?> 
+        <?php
+          $pageURL = 'http';
+          $pageURL .= "://".$_SERVER["SERVER_NAME"];
+          if ($_SERVER["SERVER_PORT"] != "80") {
+            $pageURL .= ":".$_SERVER["SERVER_PORT"];
+          }
+          echo $pageURL."/index.php/".$this->data['roomname']); ?>
       </span>
     </div>
   </div>
