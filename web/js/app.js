@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------------------------------------
- * BuddyTok Application
+ * PresenceKit Application
  * ----------------------------------------------------------------------------------------------*/
 /* global jQuery, _, OT, Backbone, log, alert */
 /* global LocalUser, BuddyList, InvitationList, UserInfoView, ConnectModalView, BuddyListView */
