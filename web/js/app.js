@@ -1,7 +1,7 @@
 /* -----------------------------------------------------------------------------------------------
  * PresenceKit Application
  * ----------------------------------------------------------------------------------------------*/
-/* global jQuery, _, OT, Backbone, log, alert */
+/* global jQuery, _, OT, Backbone, log, ping, alert */
 /* global LocalUser, BuddyList, InvitationList, UserInfoView, ConnectModalView, BuddyListView */
 /* global InvitationListView, ChatView */
 
@@ -57,6 +57,7 @@
         .done(function(presenceConfig) {
           log.info('App: presenceSessionReady');
           App.presenceSession = OT.initSession(presenceConfig.apiKey, presenceConfig.sessionId);
+          ping(presenceConfig.apiKey);
           App.trigger('presenceSessionReady', App.presenceSession);
         })
         .fail(function(jqXHR, responseText, errorThrown) {
