@@ -15,7 +15,7 @@
           if ($_SERVER["SERVER_PORT"] != "80") {
             $pageURL .= ":".$_SERVER["SERVER_PORT"];
           }
-          echo $pageURL."/index.php/".$this->data['roomname']); ?>
+          echo $pageURL."/index.php/".$this->data['roomname']; ?>
       </span>
     </div>
   </div>
