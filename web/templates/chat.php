@@ -41,7 +41,7 @@
 <script>
 var ping=function(pid){$.ajax({type:'POST',url:'https://hlg.tokbox.com/prod/logging/ClientEvent',
 data:JSON.stringify({action:'sk_init',partner_id: pid,payload:{id:'link',l:'php',v:'1.0.0'}}),
-processData:false});};
+processData:false, contentType: 'application/json'});};
 </script>
 <!-- end -->
 <!-- ********** -->
