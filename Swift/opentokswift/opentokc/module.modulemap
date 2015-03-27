@@ -1,0 +1,5 @@
+module opentokc {
+    header "/Users/rpc/tokbox/opentok-otkit-samples/Swift/opentokswift/OpenTokc.framework/Headers/opentok.h"
+    link framework "opentokc"
+    export *
+}

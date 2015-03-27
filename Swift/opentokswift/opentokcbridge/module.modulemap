@@ -1,0 +1,6 @@
+module opentokcbridge {
+    header "/Users/rpc/tokbox/opentok-otkit-samples/Swift/opentokswift/opentokcbridge/OTSSessionDelegate.h"
+    header "/Users/rpc/tokbox/opentok-otkit-samples/Swift/opentokswift/opentokcbridge/OTSPublisherDelegate.h"
+    
+    export *
+}
