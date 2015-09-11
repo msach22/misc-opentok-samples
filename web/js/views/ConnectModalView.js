@@ -16,6 +16,10 @@
       'click #connect-btn': 'connect'
     },
 
+    _showDone: false,
+
+    _waitingForShow: [],
+
     initialize: function(options) {
       if (!options.dispatcher) {
         log.error('ConnectModalView: initialize() cannot be called without a dispatcher');
@@ -71,6 +75,11 @@
       // DOM queries
       this.$form = this.$('#connect-form');
       this.$connectButton = this.$('#connect-btn');
+      this._showDone = true;
+
+      // We might need to queue again whatever stalled because this wasn't done
+      this._waitingForShow.forEach(setTimeout);
+      this._waitingForShow = [];
 
       // Delegate to bootstrap plugin
       this.$el.modal('show');
@@ -112,14 +121,17 @@
     },
 
     presenceSessionReady: function(presenceSession) {
+      if (!this._showDone) {
+        // Just queue ourselves for when show is done
+        this._waitingForShow.
+          push(this.presenceSessionReady.bind(this, presenceSession));
+        return;
+      }
       this.presenceSession = presenceSession;
-
       // Now that a presence session exists, enable the form
-      // NOTE: show() must be called before this method
       this.$connectButton.prop('disabled', false);
       this.$connectButton.text('Connect');
     }
-
   });
 
 }(window));
