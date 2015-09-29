@@ -1,0 +1,23 @@
+<html>
+  <head></head>
+  <body>
+    <div id='myPublisherDiv'></div>
+
+
+    <script src='//static.opentok.com/webrtc/v2.2/js/opentok.min.js'></script>
+    <script>
+      var apiKey = '27086612';
+      var sessionId = '2_MX4yNzA4NjYxMn5-MTQ0MzU1MDI4MzY4OX5HbnZHRnVGYVJSTVVlei8wWHFydVFUK0d-UH4';
+      var token = 'T1==cGFydG5lcl9pZD0yNzA4NjYxMiZzaWc9NTc5NmY0NzcyOWMxOTU0ZTdhNDhkNDEyYThiYTdhNjM5OTU2NThhYTpyb2xlPXB1Ymxpc2hlciZzZXNzaW9uX2lkPTJfTVg0eU56QTROall4TW41LU1UUTBNelUxTURJNE16WTRPWDVIYm5aSFJuVkdZVkpTVFZWbGVpOHdXSEZ5ZFZGVUswZC1VSDQmY3JlYXRlX3RpbWU9MTQ0MzU1MDMxNSZub25jZT0wLjI1MTIzODA1NDQ3OTgyNDA2JmV4cGlyZV90aW1lPTE0NDYxNDIyNjUmY29ubmVjdGlvbl9kYXRhPQ==';
+      var session = OT.initSession(apiKey, sessionId);
+
+      session.connect(token, function(error) {
+        if (error) {
+          console.log(error.message);
+        } else {
+          session.publish('myPublisherDiv', {width: 320, height: 240});
+        }
+      });
+    </script>
+  </body>
+</html>
