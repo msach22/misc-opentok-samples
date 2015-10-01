@@ -6,7 +6,18 @@
           #subscribersDiv > div {
             float: left;
           }
+
+          .show {
+            visibility: visible;
+            display:block;
+          }
+
+          .hide {
+            visibility: hidden;
+            display: none;
+          }
         </style>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     </head>
     <body>
         <div id='subscribersDiv'>
@@ -15,11 +26,21 @@
 
           </div>
           <div id="subscriber1">
-
+            <div class="buttonBar">
+              <div id="connectSession1" class="show">
+                <input type="button" value="Connect" onclick="connectSession1();" />
+              </div>
+              <div id="connectedSession1" class="hide">
+                <input type="button" value="Audio-only" onclick="" />
+                <input type="button" value="Restricted frame rate" onclick="" />
+                <input type="button" value="Stream prioritization" onclick="" />
+              </div>
+            </div>
           </div>
           <div id="subscriber2">
 
           </div>
+          <div style="clear:both"></div>
         </div>
 
         <script src='//static.opentok.com/webrtc/v2.2/js/opentok.min.js'></script>
@@ -27,41 +48,47 @@
             var apiKey = '27086612';
             var sessionId = '1_MX4yNzA4NjYxMn5-MTQ0MzczMzgxNjI1NH4vdDFDb2x3ZjZ1WDcybGtlakRkOEhDTDh-fg';
             var token = 'T1==cGFydG5lcl9pZD0yNzA4NjYxMiZzaWc9M2Y0YTk5OTU2YjEzNGZjYjI1NWIwMmIzOTFlNDY4OGExM2ZiMGFjMzpyb2xlPXN1YnNjcmliZXImc2Vzc2lvbl9pZD0xX01YNHlOekE0TmpZeE1uNS1NVFEwTXpjek16Z3hOakkxTkg0dmRERkRiMngzWmpaMVdEY3liR3RsYWtSa09FaERURGgtZmcmY3JlYXRlX3RpbWU9MTQ0MzczMzg2NiZub25jZT0wLjEyOTQxNDcwOTE1MDUyMjEmZXhwaXJlX3RpbWU9MTQ0NjMyNTgwOSZjb25uZWN0aW9uX2RhdGE9';
-            var sessions = [];
+            var session1, session2, session3;
+            var subscriber1, subscriber2, subscriber3;
 
-            //connect to session1 & attach it to subscriber1
+            var connectSession1 = function () {
+              //connect to session1 & attach it to subscriber1
+              session1 = OT.initSession(apiKey, sessionId);
 
+              session1.on({
+                  streamCreated: function(event) {
+                      subscriber1 = session1.subscribe(event.stream, 'subscriber1', {insertMode: 'append'});
+                  }
+              });
+
+              session1.connect(token);
+
+              $("#connectSession1").removeClass("show").addClass("hide");
+              $("#connectedSession1").removeClass("hide").addClass("show");
+            }
+/*
             //connect to session2 & attach it to subscriber 2
+            session2 = OT.initSession(apiKey, sessionId);
+
+            session2.on({
+                streamCreated: function(event) {
+                    var subscriber = session2.subscribe(event.stream, 'subscriber2', {insertMode: 'append'});
+                }
+            });
+
+            session2.connect(token);
 
             //connect to session3 & attach it to subscriber 3
+            session3 = OT.initSession(apiKey, sessionId);
 
+            session3.on({
+                streamCreated: function(event) {
+                    var subscriber = session3.subscribe(event.stream, 'subscriber3', {insertMode: 'append'});
+                }
+            });
 
-
-            for (var i = 0; i<3; i++) {
-                var session = OT.initSession(apiKey, sessionId);
-                sessions.push(session);
-
-                //this is asynchronous, and so by the time this happens... i is 3
-                session.on({
-                    streamCreated: function(event) {
-                        var targetElement = 'subscriber';
-                        var subscriber = session.subscribe(event.stream, targetElement, {insertMode: 'append'}, function (error) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log('Subscriber added.');
-      }
-  });
-
-                        //this is asynchronous, and so by the time this happens... i is 3
-                        if(0 == i) {
-                          subscriber.restrictFrameRate(true);
-                        }
-                    }
-                });
-                session.connect(token, function(error) {
-                });
-            }
+            session3.connect(token);
+*/
         </script>
     </body>
 </html>
