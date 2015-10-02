@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Multiparty best practices</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    </head>
+    <body>
+
+        <div class="buttonBar" id="mybuttons" style="display: none">
+
+            <input type="button" value="Toggle video reception" onclick="toggleVideo();" />
+            <input type="button" value="Restricted frame rate" onclick="toggleRestrictFrameRate();" />
+            <input type="button" value="Stream prioritization" onclick="" />
+
+        </div>
+        <div id="stats">
+            <p>Video bitrate (Kbps) <span id="videobitrate">0</span> </br>
+               Audio bitrate (Kbps) <span id="audiobitrate">0</span> </br>
+               Total bitrate (Kbps) <span id="totalbitrate">0</span> </p>
+        </div>
+
+
+        <script src='//static.opentok.com/webrtc/v2.2/js/opentok.js'></script>
+        <script>
+            var apiKey = '27086612';
+            var sessionId = '1_MX4yNzA4NjYxMn5-MTQ0MzczMzgxNjI1NH4vdDFDb2x3ZjZ1WDcybGtlakRkOEhDTDh-fg';
+            var token = 'T1==cGFydG5lcl9pZD0yNzA4NjYxMiZzaWc9M2Y0YTk5OTU2YjEzNGZjYjI1NWIwMmIzOTFlNDY4OGExM2ZiMGFjMzpyb2xlPXN1YnNjcmliZXImc2Vzc2lvbl9pZD0xX01YNHlOekE0TmpZeE1uNS1NVFEwTXpjek16Z3hOakkxTkg0dmRERkRiMngzWmpaMVdEY3liR3RsYWtSa09FaERURGgtZmcmY3JlYXRlX3RpbWU9MTQ0MzczMzg2NiZub25jZT0wLjEyOTQxNDcwOTE1MDUyMjEmZXhwaXJlX3RpbWU9MTQ0NjMyNTgwOSZjb25uZWN0aW9uX2RhdGE9';
+
+            var subscriber;
+
+            var lastVideoBytes = 0;
+            var lastAudioBytes = 0;
+            var lastTime = Date.now();
+
+            function updateStats(subscriber) {
+
+                subscriber.getStats(function(err, stats) {
+                    if (err) {
+                        console.error(err);
+                        return;
+                    }
+                    console.log(stats);
+                    var intervalVideoBytes = stats.video.bytesReceived - lastVideoBytes;
+                    var intervalAudioBytes = stats.audio.bytesReceived - lastAudioBytes;
+                    var currentTime = Date.now();
+                    var interval = currentTime - lastTime;
+
+                    lastVideoBytes = stats.video.bytesReceived;
+                    lastAudioBytes = stats.audio.bytesReceived;
+                    lastTime = currentTime;
+
+                    var videoBps = (intervalVideoBytes * 8) / interval;
+                    var audioBps = (intervalAudioBytes * 8) / interval;
+                    var totalBps = videoBps + audioBps;
+                    //console.log(videoBps + " " + audioBps);
+                    $('#videobitrate').text(videoBps.toFixed(1) + "");
+                    $('#audiobitrate').text(audioBps.toFixed(1) + "");
+                    $('#totalbitrate').text(totalBps.toFixed(1) + "");
+                });
+            }
+
+
+
+            var connectSession = function () {
+                var session = OT.initSession(apiKey, sessionId);
+
+                session.on({
+                    streamCreated: function(event) {
+                        subscriber = session.subscribe(event.stream, 'subscriber', {insertMode: 'append'});
+
+                        // Query the stats
+                        setInterval(function(){
+                            updateStats(subscriber);
+                        }, 2000);
+
+                    }
+                });
+
+                session.connect(token, function (error) {
+                    if(error) {
+                        // failed to connect
+                    } else {
+                        $("#mybuttons").show();
+                    }
+                });
+            }
+
+            $( document ).ready(function() {
+                connectSession();
+            });
+
+
+            var restrictedFrameRateOn = true;
+            function toggleRestrictFrameRate() {
+                subscriber.restrictFrameRate(restrictedFrameRateOn);
+                restrictedFrameRateOn = !restrictedFrameRateOn;
+            }
+
+            var videoOn = false;
+            function toggleVideo() {
+                subscriber.subscribeToVideo(videoOn);
+                videoOn = !videoOn;
+            }
+
+        </script>
+    </body>
+</html>

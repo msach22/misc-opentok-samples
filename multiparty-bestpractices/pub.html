@@ -17,6 +17,10 @@
             </select>
             <input id="publishbutton" type="button" value="Publish" onclick="publish()">
         </div>
+        <div id="publishercontrols" style="display: none">
+            <input id="toggleaudio" type="button" value="Toggle audio" onclick="toggleAudio()">
+            <input id="togglevideo" type="button" value="Toggle video" onclick="toggleVideo()">
+        </div>
         <div id='myPublisherDiv'></div>
         <div id="notconnected">Connecting to session</div>
 
@@ -65,9 +69,27 @@
                 }
                 publisher = OT.initPublisher('myPublisherDiv', {width: width, height: height, frameRate: fps});
 
-                session.publish(publisher);
-
+                session.publish(publisher, function(error) {
+                    if (error) {
+                        console.log(error);
+                    } else {
+                        $('#publishercontrols').show();
+                    }
+                });
             }
+
+            var audioOn = true;
+            function toggleAudio() {
+                audioOn = !audioOn;
+                publisher.publishAudio(audioOn);
+            }
+
+            var videoOn = true;
+            function toggleVideo() {
+                videoOn = !videoOn;
+                publisher.publishVideo(videoOn);
+            }
+
         </script>
     </body>
 </html>
