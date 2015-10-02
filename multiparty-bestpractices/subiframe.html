@@ -32,9 +32,9 @@
             var lastAudioBytes = 0;
             var lastTime = Date.now();
 
-            function updateStats(subscriber) {
+            function updateStats(mysubscriber) {
 
-                subscriber.getStats(function(err, stats) {
+                mysubscriber.getStats(function(err, stats) {
                     if (err) {
                         console.error(err);
                         return;
