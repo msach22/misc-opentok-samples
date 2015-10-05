@@ -28,9 +28,20 @@
 
             var subscriber;
 
+
+            var myInterval = null;
+
             var lastVideoBytes = 0;
             var lastAudioBytes = 0;
             var lastTime = Date.now();
+
+            function paintStats(videoBps, audioBps) {
+                var totalBps = videoBps + audioBps;
+                //console.log(videoBps + " " + audioBps);
+                $('#videobitrate').text(videoBps.toFixed(1) + "");
+                $('#audiobitrate').text(audioBps.toFixed(1) + "");
+                $('#totalbitrate').text(totalBps.toFixed(1) + "");
+            }
 
             function updateStats(mysubscriber) {
 
@@ -51,11 +62,7 @@
 
                     var videoBps = (intervalVideoBytes * 8) / interval;
                     var audioBps = (intervalAudioBytes * 8) / interval;
-                    var totalBps = videoBps + audioBps;
-                    //console.log(videoBps + " " + audioBps);
-                    $('#videobitrate').text(videoBps.toFixed(1) + "");
-                    $('#audiobitrate').text(audioBps.toFixed(1) + "");
-                    $('#totalbitrate').text(totalBps.toFixed(1) + "");
+                    paintStats(videoBps, audioBps);
                 });
             }
 
@@ -66,15 +73,31 @@
 
                 session.on({
                     streamCreated: function(event) {
+                        console.log("stream created");
                         subscriber = session.subscribe(event.stream, 'subscriber', {insertMode: 'append'});
 
-                        // Query the stats
-                        setInterval(function(){
-                            updateStats(subscriber);
-                        }, 2000);
+                        if (myInterval == null) {
+                            // Query the stats
+                            myInterval = setInterval(function(){
+                                updateStats(subscriber);
+                            }, 2000);
+                        }
 
                     }
                 });
+
+                session.on({
+                    streamDestroyed: function(event) {
+                        console.log("stream destroyed");
+                        if (myInterval != null) {
+                            console.log("Clearing interval");
+                            clearInterval(myInterval);
+                            lastVideoBytes = 0;
+                            lastAudioBytes = 0;
+                            paintStats(0, 0);
+                            myInterval = null;
+                        }
+                    }});
 
                 session.connect(token, function (error) {
                     if(error) {
