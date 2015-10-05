@@ -12,7 +12,7 @@
             <select id="fpsselect">
                 <option value="30">30</option>
                 <option value="15">15</option>
-                <option value="5">5</option>
+                <option value="1">1</option>
 
             </select>
             <input id="publishbutton" type="button" value="Publish" onclick="publish()">
@@ -47,9 +47,28 @@
                         $('#publishcontrols').show();
                     }
                 });
+
+
             }
 
             var publisher = null;
+
+            function initAndPublish(width, height, fps) {
+                var constrains = {frameRate: fps};
+                console.log(constrains);
+                publisher = OT.initPublisher('myPublisherDiv', constrains);
+                publisher.on('streamCreated', function(event) {
+                    console.log('Frame rate: ' + event.stream.frameRate);
+                });
+                session.publish(publisher, function(error) {
+                    if (error) {
+                        console.log(error);
+                    } else {
+                        $('#publishercontrols').show();
+                    }
+                });
+            }
+
             function publish() {
                 var res  = $( "#resolutionselect" ).val();
                 var fps  = parseInt($( "#fpsselect" ).val());
@@ -65,17 +84,16 @@
                     height = 240;
                 }
                 if (publisher != null) {
-                    publisher.destroy();
-                }
-                publisher = OT.initPublisher('myPublisherDiv', {width: width, height: height, frameRate: fps});
+                    console.log("Destroying publisher");
+                    publisher.stream.on('destroyed', function() {
+                        console.log("Publisher destroyed");
+                        initAndPublish(width, height, fps);
 
-                session.publish(publisher, function(error) {
-                    if (error) {
-                        console.log(error);
-                    } else {
-                        $('#publishercontrols').show();
-                    }
-                });
+                    });
+                    publisher.destroy();
+                } else {
+                    initAndPublish(width, height, fps);
+                }
             }
 
             var audioOn = true;
