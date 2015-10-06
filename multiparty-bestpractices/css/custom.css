@@ -9,6 +9,10 @@
     color: white;
 }
 
+:disabled {
+  color:inherit;
+}
+
 body {
   background-color: #f9f9f9;
 }
@@ -18,6 +22,15 @@ body {
 }
 
 .form-group {
+  padding-top: 15px;
+}
+
+.btn-group {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.buttonBar {
   padding-top: 15px;
 }
 
