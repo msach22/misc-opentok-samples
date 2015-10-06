@@ -9,7 +9,7 @@
         <div class="buttonBar" id="mybuttons" style="display: none">
 
             <input type="button" value="Toggle video reception" onclick="toggleVideo();" />
-            <input type="button" value="Restricted frame rate" onclick="toggleRestrictFrameRate();" />
+            <input type="button" value="Toggle restricted frame rate" onclick="toggleRestrictFrameRate();" />
 
             <input type="button" id="streamprio_hd_30" value="1280x720@30fps" disabled/>
             <input type="button" id="streamprio_vga_30" value="640x480@30fps" disabled/>
@@ -18,10 +18,13 @@
             <input type="button" id="streamprio_auto" value="Automatic selection" disabled/>
         </div>
         <div id="stats">
-            <p>Video bitrate (Kbps) <span id="videobitrate">0</span> </br>
+            <p>Video resolution: <span id="videoresolution">1x1</span> </br>
+               Video bitrate (Kbps) <span id="videobitrate">0</span> </br>
                Audio bitrate (Kbps) <span id="audiobitrate">0</span> </br>
                Total bitrate (Kbps) <span id="totalbitrate">0</span> </p>
         </div>
+        <div id='mySubscribersDiv'></div>
+
 
 
         <script src='//static.opentok.com/webrtc/v2.2/js/opentok.js'></script>
@@ -39,32 +42,29 @@
 
             // Stream prioritization
             $('#streamprio_hd_30').click(function() {
-                subscriber.setPreferredResolution({width: 1280, heigth: 720});
+                subscriber.setPreferredResolution({width: 1280, height: 720});
                 subscriber.setPreferredFrameRate(30.0);
             });
 
             $('#streamprio_vga_30').click(function() {
-                subscriber.setPreferredResolution({width: 640, heigth: 480});
+                subscriber.setPreferredResolution({width: 640, height: 480});
                 subscriber.setPreferredFrameRate(30.0);
             });
 
             $('#streamprio_qvga_30').click(function() {
-                subscriber.setPreferredResolution({width: 10, heigth: 10});
+                subscriber.setPreferredResolution({width: 10, height: 10});
                 subscriber.setPreferredFrameRate(30.0);
             });
 
             $('#streamprio_qvga_7').click(function() {
-                subscriber.setPreferredResolution({width: 10, heigth: 10});
+                subscriber.setPreferredResolution({width: 10, height: 10});
                 subscriber.setPreferredFrameRate(7.0);
             });
 
             $('#streamprio_auto').click(function() {
-                subscriber.setPreferredResolution({width: -1, heigth: -1});
+                subscriber.setPreferredResolution({width: -1, height: -1});
                 subscriber.setPreferredFrameRate(-1);
             });
-
-
-
 
             var myInterval = null;
 
@@ -72,9 +72,11 @@
             var lastAudioBytes = 0;
             var lastTime = Date.now();
 
-            function paintStats(videoBps, audioBps) {
+            function paintStats(videoBps, audioBps, w, h) {
                 var totalBps = videoBps + audioBps;
                 //console.log(videoBps + " " + audioBps);
+                console.log(w + " " + h);
+                $('#videoresolution').text(w + "x" + h);
                 $('#videobitrate').text(videoBps.toFixed(1) + "");
                 $('#audiobitrate').text(audioBps.toFixed(1) + "");
                 $('#totalbitrate').text(totalBps.toFixed(1) + "");
@@ -88,6 +90,10 @@
                         return;
                     }
                     console.log(stats);
+                    //console.log(mysubscriber.stream.videoDimensions);
+
+                   // console.log(mysubscriber.videoWidth());
+
                     var intervalVideoBytes = stats.video.bytesReceived - lastVideoBytes;
                     var intervalAudioBytes = stats.audio.bytesReceived - lastAudioBytes;
                     var currentTime = Date.now();
@@ -99,11 +105,21 @@
 
                     var videoBps = (intervalVideoBytes * 8) / interval;
                     var audioBps = (intervalAudioBytes * 8) / interval;
-                    paintStats(videoBps, audioBps);
+
+                    var w = mysubscriber.videoWidth();
+                    var h = mysubscriber.videoHeight();
+                    paintStats(videoBps, audioBps, w, h);
                 });
             }
 
-
+            function resizeWidget(mysubscriber, myDivElement) {
+                var w = mysubscriber.videoWidth();
+                var h = mysubscriber.videoHeight();
+                if (w > 0 && h > 0) {
+                    myDivElement.style.width = w + "px";
+                    myDivElement.style.height = h + "px";
+                }
+            }
 
             var connectSession = function () {
                 var session = OT.initSession(apiKey, sessionId);
@@ -111,7 +127,9 @@
                 session.on({
                     streamCreated: function(event) {
                         console.log("stream created");
-                        subscriber = session.subscribe(event.stream, 'subscriber', {insertMode: 'append'});
+                        var div = document.createElement('div');
+                        $( "body" ).append(div);
+                        subscriber = session.subscribe(event.stream, div, {insertMode: 'append'});
                         var width = event.stream.videoDimensions.width;
 
                         if (width > 640) {
@@ -124,11 +142,11 @@
                         $('#streamprio_qvga_7').prop('disabled', false);
                         $('#streamprio_auto').prop('disabled', false);
 
-
                         if (myInterval == null) {
                             // Query the stats
                             myInterval = setInterval(function(){
                                 updateStats(subscriber);
+                                resizeWidget(subscriber, div.childNodes[0]);
                             }, 2000);
                         }
 

@@ -53,15 +53,13 @@
                         $('#publishcontrols').show();
                     }
                 });
-
-
             }
 
             var publisher = null;
 
             function initAndPublish(width, height, fps) {
                 var resolution = width + "x" + height;
-                var constrains = {resolution: resolution, frameRate: fps};
+                var constrains = {resolution: resolution, width: width, height:height, frameRate: fps};
                 console.log(constrains);
                 publisher = OT.initPublisher('myPublisherDiv', constrains);
                 publisher.on('streamCreated', function(event) {
