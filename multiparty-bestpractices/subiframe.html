@@ -2,32 +2,37 @@
 <html>
     <head>
         <title>Multiparty best practices</title>
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <script src='//static.opentok.com/webrtc/v2.2/js/opentok.min.js'></script>
     </head>
     <body>
+        <div class="container" id="maincontainer">
 
-        <div class="buttonBar" id="mybuttons" style="display: none">
+            <div class="buttonBar" id="mybuttons" style="display: none">
 
-            <input type="button" value="Toggle video reception" onclick="toggleVideo();" />
-            <input type="button" value="Toggle restricted frame rate" onclick="toggleRestrictFrameRate();" />
+                <input type="button" value="Toggle video reception" class="btn btn-default" onclick="toggleVideo();" />
+                <input type="button" value="Toggle restricted frame rate" class="btn btn-default" onclick="toggleRestrictFrameRate();" />
 
-            <input type="button" id="streamprio_hd_30" value="1280x720@30fps" disabled/>
-            <input type="button" id="streamprio_vga_30" value="640x480@30fps" disabled/>
-            <input type="button" id="streamprio_qvga_30" value="320x240@30fps" disabled/>
-            <input type="button" id="streamprio_qvga_7" value="320x240@7fps" disabled/>
-            <input type="button" id="streamprio_auto" value="Automatic selection" disabled/>
+                <div class="btn-group">
+                    <input type="button" id="streamprio_hd_30" value="1280x720@30fps" class="btn btn-default" disabled/>
+                    <input type="button" id="streamprio_vga_30" value="640x480@30fps" class="btn btn-default" disabled/>
+                    <input type="button" id="streamprio_qvga_30" value="320x240@30fps" class="btn btn-default" disabled/>
+                    <input type="button" id="streamprio_qvga_7" value="320x240@7fps" class="btn btn-default" disabled/>
+                    <!--    <input type="button" id="streamprio_auto" value="Automatic selection" disabled/> -->
+                </div>
+            </div>
+            <div id="stats" style="display: none">
+                <p>Video resolution: <span id="videoresolution">1x1</span> <br>
+                    Video bitrate (Kbps) <span id="videobitrate">0</span> <br>
+                    Audio bitrate (Kbps) <span id="audiobitrate">0</span> <br>
+                    Total bitrate (Kbps) <span id="totalbitrate">0</span> </p>
+            </div>
         </div>
-        <div id="stats">
-            <p>Video resolution: <span id="videoresolution">1x1</span> </br>
-               Video bitrate (Kbps) <span id="videobitrate">0</span> </br>
-               Audio bitrate (Kbps) <span id="audiobitrate">0</span> </br>
-               Total bitrate (Kbps) <span id="totalbitrate">0</span> </p>
-        </div>
-        <div id='mySubscribersDiv'></div>
 
 
 
-        <script src='//static.opentok.com/webrtc/v2.2/js/opentok.js'></script>
         <script>
             var apiKey = '27086612';
             var sessionId = '1_MX4yNzA4NjYxMn5-MTQ0MzczMzgxNjI1NH4vdDFDb2x3ZjZ1WDcybGtlakRkOEhDTDh-fg';
@@ -75,7 +80,7 @@
             function paintStats(videoBps, audioBps, w, h) {
                 var totalBps = videoBps + audioBps;
                 //console.log(videoBps + " " + audioBps);
-                console.log(w + " " + h);
+                //console.log(w + " " + h);
                 $('#videoresolution').text(w + "x" + h);
                 $('#videobitrate').text(videoBps.toFixed(1) + "");
                 $('#audiobitrate').text(audioBps.toFixed(1) + "");
@@ -89,7 +94,7 @@
                         console.error(err);
                         return;
                     }
-                    console.log(stats);
+                    //console.log(stats);
                     //console.log(mysubscriber.stream.videoDimensions);
 
                    // console.log(mysubscriber.videoWidth());
@@ -128,8 +133,20 @@
                     streamCreated: function(event) {
                         console.log("stream created");
                         var div = document.createElement('div');
-                        $( "body" ).append(div);
-                        subscriber = session.subscribe(event.stream, div, {insertMode: 'append'});
+                        $('#maincontainer').append(div);
+                        subscriber = session.subscribe(event.stream, div, {insertMode: 'append'}, function(err) {
+                            if (err) {
+                                return;
+                            }
+                            if (myInterval == null) {
+                            // Query the stats
+                            myInterval = setInterval(function(){
+                                updateStats(subscriber);
+                                resizeWidget(subscriber, div.childNodes[0]);
+                            }, 2000);
+                        }
+
+                        });
                         var width = event.stream.videoDimensions.width;
 
                         if (width > 640) {
@@ -142,13 +159,7 @@
                         $('#streamprio_qvga_7').prop('disabled', false);
                         $('#streamprio_auto').prop('disabled', false);
 
-                        if (myInterval == null) {
-                            // Query the stats
-                            myInterval = setInterval(function(){
-                                updateStats(subscriber);
-                                resizeWidget(subscriber, div.childNodes[0]);
-                            }, 2000);
-                        }
+
 
                     }
                 });
@@ -176,6 +187,7 @@
                         // failed to connect
                     } else {
                         $("#mybuttons").show();
+                        $("#stats").show();
                     }
                 });
             }

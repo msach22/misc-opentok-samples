@@ -1,0 +1,23 @@
+.btn {
+    border-radius: 0px;
+    background-color: #0099cb;
+    color: white;
+}
+
+.btn-publish:focus {
+    background-color: #0099cb;
+    color: white;
+}
+
+body {
+  background-color: #f9f9f9;
+}
+
+#publishercontrols {
+  padding-bottom: 15px;
+}
+
+.form-group {
+  padding-top: 15px;
+}
+
