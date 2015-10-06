@@ -75,6 +75,7 @@
                     streamCreated: function(event) {
                         console.log("stream created");
                         subscriber = session.subscribe(event.stream, 'subscriber', {insertMode: 'append'});
+                        console.log(event.stream.videoDimensions.width);
 
                         if (myInterval == null) {
                             // Query the stats

@@ -54,7 +54,8 @@
             var publisher = null;
 
             function initAndPublish(width, height, fps) {
-                var constrains = {frameRate: fps};
+                var resolution = width + "x" + height;
+                var constrains = {resolution: resolution, frameRate: fps};
                 console.log(constrains);
                 publisher = OT.initPublisher('myPublisherDiv', constrains);
                 publisher.on('streamCreated', function(event) {
