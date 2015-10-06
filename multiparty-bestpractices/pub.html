@@ -1,32 +1,38 @@
 <html>
-    <head></head>
+    <head>
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <script src='//static.opentok.com/webrtc/v2.2/js/opentok.min.js'></script>
+    </head>
     <body>
 
-        <div id="publishcontrols" style="display: none">
-            <select id="resolutionselect">
-                <option value="1280x720">1280x720</option>
-                <option value="640x480">640x480</option>
-                <option value="320x240">320x240</option>
+        <div class=container>
+            <div id="publishcontrols" style="display: none">
+                <div class="form-group">
+                    <select id="resolutionselect">
+                        <option value="1280x720">1280x720</option>
+                        <option value="640x480">640x480</option>
+                        <option value="320x240">320x240</option>
+                    </select>
 
-            </select>
-            <select id="fpsselect">
-                <option value="30">30</option>
-                <option value="15">15</option>
-                <option value="7">7</option>
-
-            </select>
-            <input id="publishbutton" type="button" value="Publish" onclick="publish()">
+                    <select id="fpsselect">
+                        <option value="30">30</option>
+                        <option value="15">15</option>
+                        <option value="7">7</option>
+                    </select>
+                </div>
+                <input id="publishbutton" type="button" value="Publish" class="btn btn-default" onclick="publish()">
+            </div>
+            <div id="publishercontrols" style="display: none">
+                <input id="toggleaudio" type="button" value="Toggle audio" class="btn btn-default" onclick="toggleAudio()">
+                <input id="togglevideo" type="button" value="Toggle video" class="btn btn-default" onclick="toggleVideo()">
+            </div>
+            <div id='myPublisherDiv'></div>
+            <div id="notconnected">Connecting to session</div>
         </div>
-        <div id="publishercontrols" style="display: none">
-            <input id="toggleaudio" type="button" value="Toggle audio" onclick="toggleAudio()">
-            <input id="togglevideo" type="button" value="Toggle video" onclick="toggleVideo()">
-        </div>
-        <div id='myPublisherDiv'></div>
-        <div id="notconnected">Connecting to session</div>
 
 
-        <script src='//static.opentok.com/webrtc/v2.2/js/opentok.min.js'></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
         <script>
             var apiKey = '27086612';

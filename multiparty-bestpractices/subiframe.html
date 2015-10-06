@@ -10,8 +10,12 @@
 
             <input type="button" value="Toggle video reception" onclick="toggleVideo();" />
             <input type="button" value="Restricted frame rate" onclick="toggleRestrictFrameRate();" />
-            <input type="button" value="Stream prioritization" onclick="" />
 
+            <input type="button" id="streamprio_hd_30" value="1280x720@30fps" disabled/>
+            <input type="button" id="streamprio_vga_30" value="640x480@30fps" disabled/>
+            <input type="button" id="streamprio_qvga_30" value="320x240@30fps" disabled/>
+            <input type="button" id="streamprio_qvga_7" value="320x240@7fps" disabled/>
+            <input type="button" id="streamprio_auto" value="Automatic selection" disabled/>
         </div>
         <div id="stats">
             <p>Video bitrate (Kbps) <span id="videobitrate">0</span> </br>
@@ -27,6 +31,39 @@
             var token = 'T1==cGFydG5lcl9pZD0yNzA4NjYxMiZzaWc9M2Y0YTk5OTU2YjEzNGZjYjI1NWIwMmIzOTFlNDY4OGExM2ZiMGFjMzpyb2xlPXN1YnNjcmliZXImc2Vzc2lvbl9pZD0xX01YNHlOekE0TmpZeE1uNS1NVFEwTXpjek16Z3hOakkxTkg0dmRERkRiMngzWmpaMVdEY3liR3RsYWtSa09FaERURGgtZmcmY3JlYXRlX3RpbWU9MTQ0MzczMzg2NiZub25jZT0wLjEyOTQxNDcwOTE1MDUyMjEmZXhwaXJlX3RpbWU9MTQ0NjMyNTgwOSZjb25uZWN0aW9uX2RhdGE9';
 
             var subscriber;
+
+            $( document ).ready(function() {
+                connectSession();
+            });
+
+
+            // Stream prioritization
+            $('#streamprio_hd_30').click(function() {
+                subscriber.setPreferredResolution({width: 1280, heigth: 720});
+                subscriber.setPreferredFrameRate(30.0);
+            });
+
+            $('#streamprio_vga_30').click(function() {
+                subscriber.setPreferredResolution({width: 640, heigth: 480});
+                subscriber.setPreferredFrameRate(30.0);
+            });
+
+            $('#streamprio_qvga_30').click(function() {
+                subscriber.setPreferredResolution({width: 10, heigth: 10});
+                subscriber.setPreferredFrameRate(30.0);
+            });
+
+            $('#streamprio_qvga_7').click(function() {
+                subscriber.setPreferredResolution({width: 10, heigth: 10});
+                subscriber.setPreferredFrameRate(7.0);
+            });
+
+            $('#streamprio_auto').click(function() {
+                subscriber.setPreferredResolution({width: -1, heigth: -1});
+                subscriber.setPreferredFrameRate(-1);
+            });
+
+
 
 
             var myInterval = null;
@@ -75,7 +112,18 @@
                     streamCreated: function(event) {
                         console.log("stream created");
                         subscriber = session.subscribe(event.stream, 'subscriber', {insertMode: 'append'});
-                        console.log(event.stream.videoDimensions.width);
+                        var width = event.stream.videoDimensions.width;
+
+                        if (width > 640) {
+                            $('#streamprio_hd_30').prop('disabled', false);
+                        }
+                        if (width > 320) {
+                            $('#streamprio_vga_30').prop('disabled', false);
+                        }
+                        $('#streamprio_qvga_30').prop('disabled', false);
+                        $('#streamprio_qvga_7').prop('disabled', false);
+                        $('#streamprio_auto').prop('disabled', false);
+
 
                         if (myInterval == null) {
                             // Query the stats
@@ -98,6 +146,11 @@
                             paintStats(0, 0);
                             myInterval = null;
                         }
+                        $('#streamprio_hd_30').prop('disabled', true);
+                        $('#streamprio_vga_30').prop('disabled', true);
+                        $('#streamprio_qvga_30').prop('disabled', true);
+                        $('#streamprio_qvga_7').prop('disabled', true);
+                        $('#streamprio_auto').prop('disabled', true);
                     }});
 
                 session.connect(token, function (error) {
@@ -108,10 +161,6 @@
                     }
                 });
             }
-
-            $( document ).ready(function() {
-                connectSession();
-            });
 
 
             var restrictedFrameRateOn = true;
