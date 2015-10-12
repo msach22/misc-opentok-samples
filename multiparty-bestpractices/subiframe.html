@@ -99,14 +99,21 @@
                     //console.log(mysubscriber.stream.videoDimensions);
 
                    // console.log(mysubscriber.videoWidth());
+                    var intervalVideoBytes = 0;
+                    var intervalAudioBytes = 0;
 
-                    var intervalVideoBytes = stats.video.bytesReceived - lastVideoBytes;
-                    var intervalAudioBytes = stats.audio.bytesReceived - lastAudioBytes;
+                    if (stats.video && stats.video.bytesReceived) {
+                        intervalVideoBytes = stats.video.bytesReceived - lastVideoBytes;
+                        lastVideoBytes = stats.video.bytesReceived;
+                    }
+                    if (stats.audio && stats.audio.bytesReceived) {
+                        intervalAudioBytes = stats.audio.bytesReceived - lastAudioBytes;
+                        lastAudioBytes = stats.audio.bytesReceived;
+                    }
+
                     var currentTime = Date.now();
                     var interval = currentTime - lastTime;
-
-                    lastVideoBytes = stats.video.bytesReceived;
-                    lastAudioBytes = stats.audio.bytesReceived;
+                    if (interval == 0) interval+= 0.01;
                     lastTime = currentTime;
 
                     var videoBps = (intervalVideoBytes * 8) / interval;
