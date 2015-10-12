@@ -14,6 +14,7 @@
             <div class="buttonBar" id="mybuttons" style="display: none">
 
                 <input type="button" value="Toggle video reception" class="btn btn-default" onclick="toggleVideo();" />
+                <input type="button" value="Toggle audio reception" class="btn btn-default" onclick="toggleAudio();" />
                 <input type="button" value="Toggle restricted frame rate" class="btn btn-default" onclick="toggleRestrictFrameRate();" />
 
                 <div class="btn-group">
@@ -211,6 +212,12 @@
             function toggleVideo() {
                 subscriber.subscribeToVideo(videoOn);
                 videoOn = !videoOn;
+            }
+
+            var audioOn = false;
+            function toggleAudio() {
+                subscriber.subscribeToAudio(audioOn);
+                audioOn = !audioOn;
             }
 
         </script>
