@@ -26,12 +26,12 @@
 <!-- ********** -->
 <!-- ********** -->
 <!-- JQuery -->
-<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
 <!-- OpenTok -->
-<script src="http://static.opentok.com/webrtc/v2.2/js/opentok.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.4/handlebars.js"></script>
+<script src="https://static.opentok.com/v2/js/opentok.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.4/handlebars.js"></script>
 <!-- Moment: date lib -->
-<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.2/moment-with-locales.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.2/moment-with-locales.min.js"></script>
 <!-- Bootstrap 3.2.0 -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 <!-- Optional theme for Bootstrap -->
