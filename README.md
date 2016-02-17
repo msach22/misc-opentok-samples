@@ -16,10 +16,13 @@ An OpenTok Starter Kit for creating a customer service application.
    and replace the `host` and `port` settings to a [Redis](http://redis.io/) instance. If the 
    instance requires authentication, you should also set the `password` setting.
 
-4. Use [Composer](https://getcomposer.org/) to install dependencies:
-   `composer install`
+4. Install [Composer](https://getcomposer.org/) to manage dependencies. A file named `composer.phar`
+   should be created in your directory.
 
-5. Set the document root for your web server (such as Apache, nginx, etc.) to the `web` directory
+5. Use [Composer](https://getcomposer.org/) to install dependencies:
+   `./composer.phar install`
+
+6. Set the document root for your web server (such as Apache, nginx, etc.) to the `web` directory
    of this project. In the case of Apache, the provided `web\.htaccess` file handles URL rewriting.
    See the [Slim Route URL Rewriting Guide](http://docs.slimframework.com/#Route-URL-Rewriting)
    for more details.
