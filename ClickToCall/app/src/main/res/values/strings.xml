@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">ClickToCall</string>
+    <string name="input_clicktocall_id">Enter ID</string>
+    <string name="btn_connect">Connect with a Support Agent</string>
+    <string name="description">ClickToCall Demo</string>
+    <string name="author">Powered by OpenTok</string>
+    <string name="network_quality">Network connection is unstable.</string>
+</resources>
