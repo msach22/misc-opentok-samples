@@ -79,12 +79,11 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
         mAnalyticsData = new OTKAnalyticsData.Builder(OpenTokConfig.LOG_CLIENT_VERSION, source, OpenTokConfig.LOG_COMPONENTID, guidVSol).build();
         mAnalytics = new OTKAnalytics(mAnalyticsData);
 
-        //add INITIALIZE attempt log event
-        addLogEvent(OpenTokConfig.LOG_ACTION_INITIALIZE, OpenTokConfig.LOG_VARIATION_ATTEMPT);
+        //add LoadCall attempt log event
+        addLogEvent(OpenTokConfig.LOG_ACTION_LOAD_CALL, OpenTokConfig.LOG_VARIATION_ATTEMPT);
 
 
         Uri url = getIntent().getData();
-
         if (url == null) {
             mWidgetId = getIntent().getStringExtra(OpenTokConfig.ARG_WIDGET_ID);
         }
@@ -104,8 +103,8 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
             mFragmentTransaction.commitAllowingStateLoss();
         }
 
-        //add INITIALIZE attempt log event
-        addLogEvent(OpenTokConfig.LOG_ACTION_INITIALIZE, OpenTokConfig.LOG_VARIATION_SUCCESS);
+        //add LoadCall success log event
+        addLogEvent(OpenTokConfig.LOG_ACTION_LOAD_CALL, OpenTokConfig.LOG_VARIATION_SUCCESS);
 
     }
 
@@ -214,7 +213,6 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
             addLogEvent(OpenTokConfig.LOG_ACTION_END_COMM, OpenTokConfig.LOG_VARIATION_SUCCESS);
         } else {
             addLogEvent(OpenTokConfig.LOG_ACTION_START_COMM, OpenTokConfig.LOG_VARIATION_ATTEMPT);
-
             //get credentials
             mController = new Controller(this, this);
             mController.getCredentials(mWidgetId);
@@ -357,6 +355,10 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     @Override
     public void onWidgetIdCredentials(String sessionId, String token, String apiKey) {
         Log.i(LOGTAG, "OnWidgetIdCredentials "+sessionId);
+
+        //update logging with credentials
+        mAnalyticsData.setSessionId(sessionId);
+        mAnalyticsData.setPartnerId(apiKey);
 
         //init 1to1 communication object
         mComm = new OneToOneCommunication(CallActivity.this, sessionId, token, apiKey);

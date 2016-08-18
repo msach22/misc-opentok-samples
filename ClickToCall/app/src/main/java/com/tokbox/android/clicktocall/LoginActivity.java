@@ -35,6 +35,10 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
 
     private String mWidgetId = null;
 
+    private OTKAnalyticsData mAnalyticsData;
+    private OTKAnalytics mAnalytics;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(LOGTAG, "onCreate");
@@ -42,6 +46,22 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
 
+
+        //Init the analytics logging for internal use
+        String source = this.getPackageName();
+
+        SharedPreferences prefs = this.getSharedPreferences("opentok", Context.MODE_PRIVATE);
+        String guidVSol = prefs.getString("guidVSol", null);
+        if (null == guidVSol) {
+            guidVSol = UUID.randomUUID().toString();
+            prefs.edit().putString("guidVSol", guidVSol).commit();
+        }
+
+        mAnalyticsData = new OTKAnalyticsData.Builder(OpenTokConfig.LOG_CLIENT_VERSION, source, OpenTokConfig.LOG_COMPONENTID, guidVSol).build();
+        mAnalytics = new OTKAnalytics(mAnalyticsData);
+
+        //add INITIALIZE attempt log event
+        addLogEvent(OpenTokConfig.LOG_ACTION_INITIALIZE, OpenTokConfig.LOG_VARIATION_ATTEMPT);
 
         if ( getIntent() == null || getIntent().getExtras() == null || !getIntent().getBooleanExtra(OpenTokConfig.ARG_SHOW_WIDGET_ID_TRUE, false)){
             restoreWidgetData();
@@ -89,6 +109,10 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
                 requestPermissions(permissions, permsRequestCode);
             }
         }
+
+        //add LoadCall success log event
+        addLogEvent(OpenTokConfig.LOG_ACTION_INITIALIZE, OpenTokConfig.LOG_VARIATION_SUCCESS);
+
     }
 
     @Override
@@ -104,20 +128,19 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
     }
 
     public void connect(View v) {
-        Log.i(LOGTAG, "join room button clicked.");
-
         mWidgetId = mWidgetIdEditText.getText().toString();
 
+        addLogEvent(OpenTokConfig.LOG_ACTION_CONNECT, OpenTokConfig.LOG_VARIATION_ATTEMPT);
         if ( mWidgetId != null && !mWidgetId.isEmpty()) {
 
             //check id
             mController = new Controller(this, this);
             mController.checkWidgetId(mWidgetId);
             showSpinning(true);
-
         }
         else {
             Log.i(LOGTAG, "Widget Id cannot be null or empty");
+            addLogEvent(OpenTokConfig.LOG_ACTION_CONNECT, OpenTokConfig.LOG_VARIATION_ERROR);
         }
     }
 
@@ -148,10 +171,12 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
         showSpinning(false);
 
         if (valid){
+            addLogEvent(OpenTokConfig.LOG_ACTION_CONNECT, OpenTokConfig.LOG_VARIATION_SUCCESS);
             saveWidgetData();
             enterCall();
         }
         else {
+            addLogEvent(OpenTokConfig.LOG_ACTION_CONNECT, OpenTokConfig.LOG_VARIATION_ERROR);
             Toast.makeText(getApplicationContext(),
                     "The ClickToCall ID is not valid", Toast.LENGTH_LONG).show();
         }
@@ -173,6 +198,12 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
             mWidgetIdEditText.setVisibility(View.VISIBLE);
             mProgressView.setVisibility(View.GONE);
 
+        }
+    }
+
+    private void addLogEvent(String action, String variation){
+        if ( mAnalytics!= null ) {
+            mAnalytics.logEvent(action, variation);
         }
     }
 }

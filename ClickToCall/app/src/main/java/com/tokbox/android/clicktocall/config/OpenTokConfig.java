@@ -14,9 +14,11 @@ public class OpenTokConfig {
     // For internal use only. Please do not modify or remove this code.
     public static final String LOG_CLIENT_VERSION = "android-vsol-1.0.0";
     public static final String LOG_COMPONENTID = "clickToCall";
-    public static final String LOG_ACTION_INITIALIZE = "Init";
-    public static final String LOG_ACTION_START_COMM = "Start";
-    public static final String LOG_ACTION_END_COMM = "End";
+    public static final String LOG_ACTION_INITIALIZE = "Init"; //load login screen
+    public static final String LOG_ACTION_CONNECT = "ConnectWithAgent"; //check widget ID
+    public static final String LOG_ACTION_LOAD_CALL = "LoadCall"; //load call screen
+    public static final String LOG_ACTION_START_COMM = "StartCall"; //start video call
+    public static final String LOG_ACTION_END_COMM = "EndCall"; //end video call
 
     public static final String LOG_VARIATION_ATTEMPT = "Attempt";
     public static final String LOG_VARIATION_ERROR = "Failure";
