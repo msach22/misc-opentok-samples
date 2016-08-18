@@ -49,7 +49,11 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
 
-        restoreWidgetData();
+
+        if ( getIntent() == null || getIntent().getExtras() == null ){
+            restoreWidgetData();
+        }
+
         if ( mWidgetId != null && !mWidgetId.isEmpty() ) {
             //NO first time
             enterCall();
@@ -81,6 +85,11 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
 
                 }
             });
+
+            if (getIntent() != null || getIntent().getExtras() != null ){
+                mWidgetIdEditText.setText(getIntent().getStringExtra(OpenTokConfig.ARG_WIDGET_ID));
+                mWidgetIdEditText.setSelection(mWidgetIdEditText.getText().length());
+            }
 
             //request Marshmallow camera permission
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

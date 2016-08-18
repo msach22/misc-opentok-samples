@@ -1,6 +1,7 @@
 package com.tokbox.android.clicktocall;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -137,6 +138,15 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
         if (mComm != null) {
             mComm.reloadViews(); //reload the local preview and the remote views
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent enterLoginIntent = new Intent(this, LoginActivity.class);
+        enterLoginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        enterLoginIntent.putExtra(OpenTokConfig.ARG_WIDGET_ID, mWidgetId);
+
+        startActivity(enterLoginIntent);
     }
 
     private void initPreviewFragment() {
