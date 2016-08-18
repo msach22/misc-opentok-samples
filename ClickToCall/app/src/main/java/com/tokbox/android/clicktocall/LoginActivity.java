@@ -1,6 +1,7 @@
 package com.tokbox.android.clicktocall;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -19,6 +20,10 @@ import android.widget.Toast;
 
 import com.tokbox.android.clicktocall.config.OpenTokConfig;
 import com.tokbox.android.clicktocall.utils.Controller;
+import com.tokbox.android.logging.OTKAnalytics;
+import com.tokbox.android.logging.OTKAnalyticsData;
+
+import java.util.UUID;
 
 
 public class LoginActivity extends AppCompatActivity implements Controller.ControllerListener {
