@@ -29,9 +29,6 @@ import com.tokbox.android.logging.OTKAnalyticsData;
 
 import java.util.UUID;
 
-/**
- * Created by mserrano on 17/08/16.
- */
 public class CallActivity extends AppCompatActivity implements Controller.ControllerListener, OneToOneCommunication.Listener, PreviewControlFragment.PreviewControlCallbacks, RemoteControlFragment.RemoteControlCallbacks, PreviewCameraFragment.PreviewCameraCallbacks {
 
     private final String LOGTAG = CallActivity.class.getSimpleName();
@@ -137,6 +134,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
 
         if (mComm != null) {
             mComm.reloadViews(); //reload the local preview and the remote views
+            mPreviewFragment.setEnabled(true);
         }
     }
 
@@ -145,6 +143,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
         Intent enterLoginIntent = new Intent(this, LoginActivity.class);
         enterLoginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         enterLoginIntent.putExtra(OpenTokConfig.ARG_WIDGET_ID, mWidgetId);
+        enterLoginIntent.putExtra(OpenTokConfig.ARG_SHOW_WIDGET_ID_TRUE, true);
 
         startActivity(enterLoginIntent);
     }
@@ -189,7 +188,8 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
                     mAudioOnlyImage = new ImageView(this);
                     mAudioOnlyImage.setImageResource(R.drawable.avatar);
                     mAudioOnlyImage.setBackgroundResource(R.drawable.bckg_audio_only);
-                    mPreviewViewContainer.addView(mAudioOnlyImage);
+                    //mPreviewViewContainer.setBackgroundColor(getResources().getColor(R.color.colorBlue));
+                    mPreviewViewContainer.addView(mAudioOnlyImage, layoutParamsPreview);
                 } else {
                     mPreviewViewContainer.removeView(mAudioOnlyImage);
                 }

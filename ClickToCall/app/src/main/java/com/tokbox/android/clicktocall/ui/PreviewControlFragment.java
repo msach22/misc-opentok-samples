@@ -18,7 +18,7 @@ import com.tokbox.android.clicktocall.R;
 
 public class PreviewControlFragment extends Fragment {
 
-    private static final String LOGTAG = "opentok-previewcontrol";
+    private static final String LOGTAG = PreviewControlFragment.class.getSimpleName();
 
     private CallActivity mActivity;
 
@@ -113,31 +113,15 @@ public class PreviewControlFragment extends Fragment {
         mVideoBtn = (ImageButton) rootView.findViewById(R.id.localVideo);
         mCallBtn = (ImageButton) rootView.findViewById(R.id.call);
 
-        if (mActivity.getComm() != null ){
-            mAudioBtn.setImageResource(mActivity.getComm().getLocalAudio()
-                    ? R.drawable.mic_icon
-                    : R.drawable.muted_mic_icon);
 
-            mVideoBtn.setImageResource(mActivity.getComm().getLocalVideo()
-                    ? R.drawable.video_icon
-                    : R.drawable.no_video_icon);
-
-
-            mCallBtn.setImageResource(mActivity.getComm().isStarted()
-                    ? R.drawable.hang_up
-                    : R.drawable.start_call);
-
-            mCallBtn.setBackgroundResource(mActivity.getComm().isStarted()
-                    ? R.drawable.end_call_button
-                    : R.drawable.initiate_call_button);
-            setEnabled(mActivity.getComm().isStarted());
-        }
-        else {
-            init();
-        }
+        init();
 
         mCallBtn.setOnClickListener(mBtnClickListener);
-        setEnabled(false);
+
+        if ( mActivity.getComm() != null && mActivity.getComm().isStarted() ){
+            setEnabled(true);
+            updateMediaControls();
+        }
 
         return rootView;
 
@@ -155,48 +139,59 @@ public class PreviewControlFragment extends Fragment {
     }
 
     public void updateLocalAudio() {
-        if (!mActivity.getComm().getLocalAudio()) {
-            mControlCallbacks.onDisableLocalAudio(true);
-            mAudioBtn.setImageResource(R.drawable.mic_icon);
-        } else {
-            mControlCallbacks.onDisableLocalAudio(false);
-            mAudioBtn.setImageResource(R.drawable.muted_mic_icon);
+        if ( mActivity.getComm() != null ) {
+            if (!mActivity.getComm().getLocalAudio()) {
+                mControlCallbacks.onDisableLocalAudio(true);
+                mAudioBtn.setImageResource(R.drawable.mic_icon);
+            } else {
+                mControlCallbacks.onDisableLocalAudio(false);
+                mAudioBtn.setImageResource(R.drawable.muted_mic_icon);
+            }
         }
     }
 
     public void updateLocalVideo() {
-        if (!mActivity.getComm().getLocalVideo()) {
-            mControlCallbacks.onDisableLocalVideo(true);
-            mVideoBtn.setImageResource(R.drawable.video_icon);
-        } else {
-            mControlCallbacks.onDisableLocalVideo(false);
-            mVideoBtn.setImageResource(R.drawable.no_video_icon);
+        if ( mActivity.getComm() != null ){
+            if (!mActivity.getComm().getLocalVideo()) {
+                mControlCallbacks.onDisableLocalVideo(true);
+                mVideoBtn.setImageResource(R.drawable.video_icon);
+            } else {
+                mControlCallbacks.onDisableLocalVideo(false);
+                mVideoBtn.setImageResource(R.drawable.no_video_icon);
+            }
         }
     }
 
     public void updateCall() {
-        if ( mActivity.getComm() != null ) {
-            updateControls();
-        }
         mControlCallbacks.onCall();
     }
 
-    public void updateControls(){
-
-        mCallBtn.setImageResource(!mActivity.getComm().isStarted()
+    private void updateCallControls(boolean callStarted){
+        mCallBtn.setImageResource(callStarted
                 ? R.drawable.hang_up
                 : R.drawable.start_call);
 
-        mCallBtn.setBackgroundResource(!mActivity.getComm().isStarted()
+        mCallBtn.setBackgroundResource(callStarted
                 ? R.drawable.end_call_button
                 : R.drawable.initiate_call_button);
     }
+
+    private void updateMediaControls(){
+        mAudioBtn.setImageResource(mActivity.getComm().getLocalAudio()
+                ? R.drawable.mic_icon
+                : R.drawable.muted_mic_icon);
+
+        mVideoBtn.setImageResource(mActivity.getComm().getLocalVideo()
+                ? R.drawable.video_icon
+                : R.drawable.no_video_icon);
+    }
+
     public void setEnabled(boolean enabled) {
         if (mVideoBtn != null && mAudioBtn != null) {
             if (enabled) {
                 mAudioBtn.setOnClickListener(mBtnClickListener);
                 mVideoBtn.setOnClickListener(mBtnClickListener);
-                updateControls();
+                updateCallControls(true);
             } else {
                 mAudioBtn.setOnClickListener(null);
                 mVideoBtn.setOnClickListener(null);

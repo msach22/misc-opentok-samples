@@ -3,6 +3,7 @@ package com.tokbox.android.clicktocall.utils;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -64,6 +65,7 @@ public class Controller {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d("Error.Response", error.toString());
+                        Toast.makeText(mContext, "Internal Error checking the ID", Toast.LENGTH_LONG).show();
                         mControllerListener.onWidgetIdChecked(false);
                     }
                 }
@@ -104,6 +106,7 @@ public class Controller {
                     public void onErrorResponse(VolleyError error) {
                         // error
                         Log.d("Error.Response", error.toString());
+                        Toast.makeText(mContext, "Internal Error getting credentials", Toast.LENGTH_LONG).show();
                     }
                 }
         );

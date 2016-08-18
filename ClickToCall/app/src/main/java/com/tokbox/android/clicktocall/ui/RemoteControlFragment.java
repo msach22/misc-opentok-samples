@@ -18,7 +18,7 @@ import com.tokbox.android.clicktocall.R;
 
 public class RemoteControlFragment extends Fragment {
 
-    private static final String LOGTAG = "opentok-remotecontrol";
+    private static final String LOGTAG = RemoteControlFragment.class.getSimpleName();
     private static final int ANIMATION_DURATION = 7000;
 
     private CallActivity mActivity;
@@ -104,13 +104,10 @@ public class RemoteControlFragment extends Fragment {
         mVideoBtn.setOnClickListener(mBtnClickListener);
 
         init();
-        /*mAudioBtn.setImageResource(mActivity.getComm().getRemoteAudio()
-                ? R.drawable.audio
-                : R.drawable.no_audio);
 
-        mVideoBtn.setImageResource(mActivity.getComm().getRemoteVideo()
-                ? R.drawable.video_icon
-                : R.drawable.no_video_icon);*/
+        if ( mActivity.getComm() != null && mActivity.getComm().isStarted() ){
+           updateMediaControls();
+        }
 
         return mRootView;
     }
@@ -119,6 +116,15 @@ public class RemoteControlFragment extends Fragment {
 
         mVideoBtn.setImageResource(R.drawable.video_icon);
 
+    }
+    private void updateMediaControls(){
+        mAudioBtn.setImageResource(mActivity.getComm().getRemoteAudio()
+                ? R.drawable.audio
+                : R.drawable.no_audio);
+
+        mVideoBtn.setImageResource(mActivity.getComm().getRemoteVideo()
+                ? R.drawable.video_icon
+                : R.drawable.no_video_icon);
     }
     public void updateRemoteAudio(){
         if(!mActivity.getComm().getRemoteAudio()){

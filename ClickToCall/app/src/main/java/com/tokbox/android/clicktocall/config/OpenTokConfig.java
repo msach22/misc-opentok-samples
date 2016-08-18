@@ -8,8 +8,8 @@ public class OpenTokConfig {
     public static final String BACKEND_URL = "https://connect.tokbox.com/";
 
     public static final String ARG_WIDGET_ID = "widgetId";
+    public static final String ARG_SHOW_WIDGET_ID_TRUE = "showWidgetId";
     public static final String LAST_WIDGET_DATA = "LAST_WIDGET_DATA";
-
 
     // For internal use only. Please do not modify or remove this code.
     public static final String LOG_CLIENT_VERSION = "android-vsol-1.0.0";

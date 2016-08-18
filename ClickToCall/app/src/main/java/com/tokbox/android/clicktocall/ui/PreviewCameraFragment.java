@@ -18,7 +18,7 @@ import com.tokbox.android.clicktocall.R;
 
 public class PreviewCameraFragment extends Fragment {
 
-    private static final String LOGTAG = "opentok-previewcamera";
+    private static final String LOGTAG = PreviewCameraFragment.class.getSimpleName();
     private CallActivity mActivity;
 
     private RelativeLayout mContainer;

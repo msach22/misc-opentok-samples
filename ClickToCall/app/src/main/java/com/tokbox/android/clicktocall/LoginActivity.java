@@ -1,7 +1,6 @@
 package com.tokbox.android.clicktocall;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -20,14 +19,8 @@ import android.widget.Toast;
 
 import com.tokbox.android.clicktocall.config.OpenTokConfig;
 import com.tokbox.android.clicktocall.utils.Controller;
-import com.tokbox.android.logging.OTKAnalytics;
-import com.tokbox.android.logging.OTKAnalyticsData;
 
-import java.util.UUID;
 
-/**
- * Created by mserrano on 17/08/16.
- */
 public class LoginActivity extends AppCompatActivity implements Controller.ControllerListener {
 
     private final String LOGTAG = LoginActivity.class.getSimpleName();
@@ -50,7 +43,7 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
         super.onCreate(savedInstanceState);
 
 
-        if ( getIntent() == null || getIntent().getExtras() == null ){
+        if ( getIntent() == null || getIntent().getExtras() == null || !getIntent().getBooleanExtra(OpenTokConfig.ARG_SHOW_WIDGET_ID_TRUE, false)){
             restoreWidgetData();
         }
 
@@ -86,7 +79,7 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
                 }
             });
 
-            if (getIntent() != null || getIntent().getExtras() != null ){
+            if ( getIntent() != null && getIntent().getExtras() != null ){
                 mWidgetIdEditText.setText(getIntent().getStringExtra(OpenTokConfig.ARG_WIDGET_ID));
                 mWidgetIdEditText.setSelection(mWidgetIdEditText.getText().length());
             }
