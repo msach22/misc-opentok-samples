@@ -16,6 +16,18 @@
         android:textSize="@dimen/alert_text"
         android:visibility="gone"></TextView>
 
+    <ProgressBar
+        android:id="@+id/call_progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="8dp"
+        android:gravity="center"
+        android:visibility="gone" />
+
     <RelativeLayout
         android:id="@+id/subscriberview"
         android:layout_width="match_parent"

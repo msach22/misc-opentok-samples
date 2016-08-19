@@ -1,5 +1,6 @@
 package com.tokbox.android.clicktocall;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -33,7 +34,6 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
 
     private final String LOGTAG = CallActivity.class.getSimpleName();
 
-    //OpenTok calls
     private OneToOneCommunication mComm;
 
     private RelativeLayout mPreviewViewContainer;
@@ -43,9 +43,8 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     private RelativeLayout.LayoutParams layoutParamsPreview;
     private TextView mAlert;
     private ImageView mAudioOnlyImage;
-    private ProgressBar mLoading;
+    private ProgressBar mProgressBar;
 
-    //UI fragments
     private PreviewControlFragment mPreviewFragment;
     private RemoteControlFragment mRemoteFragment;
     private PreviewCameraFragment mCameraFragment;
@@ -79,7 +78,6 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
         mAnalyticsData = new OTKAnalyticsData.Builder(OpenTokConfig.LOG_CLIENT_VERSION, source, OpenTokConfig.LOG_COMPONENTID, guidVSol).build();
         mAnalytics = new OTKAnalytics(mAnalyticsData);
 
-        //add LoadCall attempt log event
         addLogEvent(OpenTokConfig.LOG_ACTION_LOAD_CALL, OpenTokConfig.LOG_VARIATION_ATTEMPT);
 
 
@@ -93,6 +91,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
         mAlert = (TextView) findViewById(R.id.quality_warning);
         mAudioOnlyView = (RelativeLayout) findViewById(R.id.audioOnlyView);
         mLocalAudioOnlyView = (RelativeLayout) findViewById(R.id.localAudioOnlyView);
+        mProgressBar = (ProgressBar) findViewById(R.id.call_progress);
 
         //init controls fragments
         if (savedInstanceState == null) {
@@ -103,7 +102,6 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
             mFragmentTransaction.commitAllowingStateLoss();
         }
 
-        //add LoadCall success log event
         addLogEvent(OpenTokConfig.LOG_ACTION_LOAD_CALL, OpenTokConfig.LOG_VARIATION_SUCCESS);
 
     }
@@ -139,12 +137,42 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
 
     @Override
     public void onBackPressed() {
+        onCall();
+
         Intent enterLoginIntent = new Intent(this, LoginActivity.class);
         enterLoginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         enterLoginIntent.putExtra(OpenTokConfig.ARG_WIDGET_ID, mWidgetId);
         enterLoginIntent.putExtra(OpenTokConfig.ARG_SHOW_WIDGET_ID_TRUE, true);
 
         startActivity(enterLoginIntent);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mComm != null && mComm.isStarted()) {
+            mComm.getSession().onPause();
+
+            if (mComm.isRemote()) {
+                mRemoteViewContainer.removeAllViews();
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (mComm != null && mComm.isStarted()) {
+            mComm.getSession().onResume();
+
+            mComm.reloadViews();
+        }
+    }
+
+    public OneToOneCommunication getComm() {
+        return mComm;
     }
 
     private void initPreviewFragment() {
@@ -165,8 +193,10 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
                 .add(R.id.camera_preview_fragment_container, mCameraFragment).commit();
     }
 
-    public OneToOneCommunication getComm() {
-        return mComm;
+    private void addLogEvent(String action, String variation){
+        if ( mAnalytics!= null ) {
+            mAnalytics.logEvent(action, variation);
+        }
     }
 
     //Local control callbacks
@@ -213,6 +243,8 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
             addLogEvent(OpenTokConfig.LOG_ACTION_END_COMM, OpenTokConfig.LOG_VARIATION_SUCCESS);
         } else {
             addLogEvent(OpenTokConfig.LOG_ACTION_START_COMM, OpenTokConfig.LOG_VARIATION_ATTEMPT);
+
+            mProgressBar.setVisibility(View.VISIBLE);
             //get credentials
             mController = new Controller(this, this);
             mController.getCredentials(mWidgetId);
@@ -235,7 +267,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     }
 
     public void showRemoteControlBar(View v) {
-        if (mRemoteFragment != null && mComm.isRemote()) {
+        if (mRemoteFragment != null && mComm != null && mComm.isRemote()) {
             mRemoteFragment.show();
         }
     }
@@ -261,8 +293,17 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     //OneToOneCommunication callbacks
     @Override
     public void onError(String error) {
-        Toast.makeText(this, error, Toast.LENGTH_LONG).show();
-        mComm.end(); //end communication
+
+        if  (mComm != null ) {
+            mComm.end(); //end communication
+        }
+
+        new AlertDialog.Builder(this).
+                setTitle(getResources().getString(R.string.alert_call_error)).
+                setMessage(getResources().getString(R.string.alert_call_error_text)).
+                setPositiveButton(getResources().getString(R.string.alert_button), null).
+                setCancelable(false).create().show();
+
         cleanViewsAndControls(); //restart views
     }
 
@@ -297,6 +338,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     @Override
     public void onPreviewReady(View preview) {
         mPreviewViewContainer.removeAllViews();
+        mProgressBar.setVisibility(View.GONE);
         if (preview != null) {
             layoutParamsPreview = new RelativeLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -341,20 +383,15 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
         }
     }
 
-    private void addLogEvent(String action, String variation){
-        if ( mAnalytics!= null ) {
-            mAnalytics.logEvent(action, variation);
-        }
+    //Controller callbacks
+    @Override
+    public void onCheckedData(boolean valid, boolean videoCallEnabled) {
+        Log.i(LOGTAG, "onCheckedData");
     }
 
     @Override
-    public void onWidgetIdChecked(Boolean valid) {
-
-    }
-
-    @Override
-    public void onWidgetIdCredentials(String sessionId, String token, String apiKey) {
-        Log.i(LOGTAG, "OnWidgetIdCredentials "+sessionId);
+    public void onFetchedData(String sessionId, String token, String apiKey) {
+        Log.i(LOGTAG, "onFetchedData. SessionId: "+sessionId + " .Token: "+token + " .ApiKey: "+apiKey);
 
         //update logging with credentials
         mAnalyticsData.setSessionId(sessionId);
@@ -372,6 +409,10 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
         if (mPreviewFragment != null) {
             mPreviewFragment.setEnabled(true);
         }
+    }
 
+    @Override
+    public void onControllerError(String error) {
+        Log.i(LOGTAG, "onControllerError: " +error);
     }
 }

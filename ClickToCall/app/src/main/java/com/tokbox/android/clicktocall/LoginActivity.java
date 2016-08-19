@@ -11,11 +11,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tokbox.android.clicktocall.config.OpenTokConfig;
@@ -34,7 +38,7 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
     private final int permsRequestCode = 200;
 
     private Controller mController;
-    private View mProgressView;
+    private ProgressBar mProgressBar;
     private EditText mWidgetIdEditText;
     private Button mConnectBtn;
 
@@ -51,7 +55,6 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
 
-
         //Init the analytics logging for internal use
         String source = this.getPackageName();
 
@@ -65,27 +68,27 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
         mAnalyticsData = new OTKAnalyticsData.Builder(OpenTokConfig.LOG_CLIENT_VERSION, source, OpenTokConfig.LOG_COMPONENTID, guidVSol).build();
         mAnalytics = new OTKAnalytics(mAnalyticsData);
 
-        //add INITIALIZE attempt log event
         addLogEvent(OpenTokConfig.LOG_ACTION_INITIALIZE, OpenTokConfig.LOG_VARIATION_ATTEMPT);
 
+        //check shared preferences
         if ( getIntent() == null || getIntent().getExtras() == null || !getIntent().getBooleanExtra(OpenTokConfig.ARG_SHOW_WIDGET_ID_TRUE, false)){
             restoreWidgetData();
         }
 
         if ( mWidgetId != null && !mWidgetId.isEmpty() ) {
-            //NO first time
+            //Not first time --> call screen
             enterCall();
         }
         else {
+            //first time --> login screen
             setContentView(R.layout.activity_login);
             mConnectBtn = (Button) findViewById(R.id.button_connect);
             mWidgetIdEditText = (EditText) findViewById(R.id.input_clicktocall_id);
-            mProgressView = (ProgressBar) findViewById(R.id.login_progress);
+            mProgressBar = (ProgressBar) findViewById(R.id.login_progress);
 
             mWidgetIdEditText.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
                 }
 
                 @Override
@@ -115,7 +118,6 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
             }
         }
 
-        //add LoadCall success log event
         addLogEvent(OpenTokConfig.LOG_ACTION_INITIALIZE, OpenTokConfig.LOG_VARIATION_SUCCESS);
 
     }
@@ -136,9 +138,8 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
         mWidgetId = mWidgetIdEditText.getText().toString();
 
         addLogEvent(OpenTokConfig.LOG_ACTION_CONNECT, OpenTokConfig.LOG_VARIATION_ATTEMPT);
+        //Check ID
         if ( mWidgetId != null && !mWidgetId.isEmpty()) {
-
-            //check id
             mController = new Controller(this, this);
             mController.checkWidgetId(mWidgetId);
             showSpinning(true);
@@ -170,38 +171,17 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
 
         startActivity(enterCallIntent);
     }
-    @Override
-    public void onWidgetIdChecked(Boolean valid) {
-        Log.i(LOGTAG, "onWidgetIdChecked is valid"+valid);
-        showSpinning(false);
-
-        if (valid){
-            addLogEvent(OpenTokConfig.LOG_ACTION_CONNECT, OpenTokConfig.LOG_VARIATION_SUCCESS);
-            saveWidgetData();
-            enterCall();
-        }
-        else {
-            addLogEvent(OpenTokConfig.LOG_ACTION_CONNECT, OpenTokConfig.LOG_VARIATION_ERROR);
-            Toast.makeText(getApplicationContext(),
-                    "The ClickToCall ID is not valid", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    @Override
-    public void onWidgetIdCredentials(String sessionId, String token, String apiKey) {
-
-    }
 
     private void showSpinning(boolean show){
         if ( show ) {
             mConnectBtn.setVisibility(View.GONE);
             mWidgetIdEditText.setVisibility(View.GONE);
-            mProgressView.setVisibility(View.VISIBLE);
+            mProgressBar.setVisibility(View.VISIBLE);
         }
         else {
             mConnectBtn.setVisibility(View.VISIBLE);
             mWidgetIdEditText.setVisibility(View.VISIBLE);
-            mProgressView.setVisibility(View.GONE);
+            mProgressBar.setVisibility(View.GONE);
 
         }
     }
@@ -211,4 +191,56 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
             mAnalytics.logEvent(action, variation);
         }
     }
+
+    private Toast getToast(int layout, String toastText, int gravity, int duration, int xOffset,
+                           int yOffset) {
+        LayoutInflater inflater = getLayoutInflater();
+        View toastLayout =
+                inflater.inflate(layout, (ViewGroup) findViewById(R.id.toast_layout_root));
+        TextView text = (TextView) toastLayout.findViewById(R.id.toast_text);
+        text.setText(toastText);
+
+        Toast returnedValue = new Toast(getApplicationContext());
+        if (gravity != 0) {
+            returnedValue.setGravity(gravity, xOffset, yOffset);
+        }
+        returnedValue.setDuration(duration);
+        returnedValue.setView(toastLayout);
+        return returnedValue;
+    }
+
+    //Controller callbacks
+    @Override
+    public void onCheckedData(boolean valid, boolean videoCallEnabled) {
+        Log.i(LOGTAG, "onCheckedData: ID is "+valid);
+        showSpinning(false);
+
+        if ( valid ){
+            if ( videoCallEnabled ){
+                addLogEvent(OpenTokConfig.LOG_ACTION_CONNECT, OpenTokConfig.LOG_VARIATION_SUCCESS);
+                saveWidgetData();
+                enterCall();
+            }
+            else {
+                addLogEvent(OpenTokConfig.LOG_ACTION_CONNECT, OpenTokConfig.LOG_VARIATION_ERROR);
+            }
+        }
+        else {
+            addLogEvent(OpenTokConfig.LOG_ACTION_CONNECT, OpenTokConfig.LOG_VARIATION_ERROR);
+            getToast(R.layout.toast, getResources().getString(R.string.alert_invalid_id), Gravity.BOTTOM, Toast.LENGTH_LONG, 0, 140).show();
+        }
+    }
+
+    @Override
+    public void onFetchedData(String sessionId, String token, String apiKey) {
+        Log.i(LOGTAG, "onFetchedData");
+    }
+
+    @Override
+    public void onControllerError(String error) {
+        Log.i(LOGTAG, "onControllerError: " + error);
+
+        showSpinning(false);
+    }
+
 }
