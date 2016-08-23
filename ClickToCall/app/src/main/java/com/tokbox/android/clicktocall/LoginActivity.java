@@ -22,12 +22,15 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.tokbox.android.clicktocall.config.OpenTokConfig;
 import com.tokbox.android.clicktocall.utils.Controller;
 import com.tokbox.android.logging.OTKAnalytics;
 import com.tokbox.android.logging.OTKAnalyticsData;
 
 import java.util.UUID;
+
+import io.fabric.sdk.android.Fabric;
 
 
 public class LoginActivity extends AppCompatActivity implements Controller.ControllerListener {
@@ -54,6 +57,12 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
+
+        Fabric fabric = new Fabric.Builder(this)
+                .kits(new Crashlytics())
+                .debuggable(true)
+                .build();
+        Fabric.with(fabric);
 
         //Init the analytics logging for internal use
         String source = this.getPackageName();
@@ -168,8 +177,8 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
     private void enterCall(){
         Intent enterCallIntent = new Intent(this, CallActivity.class);
         enterCallIntent.putExtra(OpenTokConfig.ARG_WIDGET_ID, mWidgetId);
-
         startActivity(enterCallIntent);
+
     }
 
     private void showSpinning(boolean show){
