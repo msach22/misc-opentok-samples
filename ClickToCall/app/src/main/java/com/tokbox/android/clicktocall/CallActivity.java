@@ -19,6 +19,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 import com.tokbox.android.accpack.OneToOneCommunication;
 import com.tokbox.android.clicktocall.config.OpenTokConfig;
 import com.tokbox.android.clicktocall.ui.PreviewCameraFragment;
@@ -101,6 +102,8 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
             initRemoteFragment(); //to enable/disable remote media
             mFragmentTransaction.commitAllowingStateLoss();
         }
+
+        showInfo();
 
         addLogEvent(OpenTokConfig.LOG_ACTION_LOAD_CALL, OpenTokConfig.LOG_VARIATION_SUCCESS);
 
@@ -191,6 +194,11 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
         mCameraFragment = new PreviewCameraFragment();
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.camera_preview_fragment_container, mCameraFragment).commit();
+    }
+
+    private void showInfo ( ){
+        Toast.makeText(this, getResources().getString(R.string.call_message),
+                Toast.LENGTH_LONG).show();
     }
 
     private void addLogEvent(String action, String variation){
@@ -414,5 +422,6 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     @Override
     public void onControllerError(String error) {
         Log.i(LOGTAG, "onControllerError: " +error);
+        mProgressBar.setVisibility(View.GONE);
     }
 }

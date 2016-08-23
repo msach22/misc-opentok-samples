@@ -9,6 +9,8 @@
 
     <string name="network_quality">Network connection is unstable.</string>
 
+    <string name="call_message">Tap the call button below to start the meeting, your support agent will connect shortly.</string>
+
     <string name="alert_invalid_id">The ClickToCall ID is not valid</string>
 
     <string name="alert_connect_error">Error</string>
