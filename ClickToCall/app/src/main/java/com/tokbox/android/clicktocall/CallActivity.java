@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -34,6 +36,8 @@ import java.util.UUID;
 public class CallActivity extends AppCompatActivity implements Controller.ControllerListener, OneToOneCommunication.Listener, PreviewControlFragment.PreviewControlCallbacks, RemoteControlFragment.RemoteControlCallbacks, PreviewCameraFragment.PreviewCameraCallbacks {
 
     private final String LOGTAG = CallActivity.class.getSimpleName();
+    private final int CALL_ANIMATION_DURATION = 12000;
+    private final int WAITING_ANIMATION_DURATION = 10000;
 
     private OneToOneCommunication mComm;
 
@@ -103,7 +107,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
             mFragmentTransaction.commitAllowingStateLoss();
         }
 
-        showInfo();
+        showInfo(getResources().getString(R.string.call_message), CALL_ANIMATION_DURATION);
 
         addLogEvent(OpenTokConfig.LOG_ACTION_LOAD_CALL, OpenTokConfig.LOG_VARIATION_SUCCESS);
 
@@ -196,9 +200,40 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
                 .add(R.id.camera_preview_fragment_container, mCameraFragment).commit();
     }
 
-    private void showInfo ( ){
-        Toast.makeText(this, getResources().getString(R.string.call_message),
-                Toast.LENGTH_LONG).show();
+    private void showInfo ( final String message, final int duration){
+        final Toast infoToast = Toast.makeText(CallActivity.this, message,
+                Toast.LENGTH_LONG);
+        Animation animation = new AlphaAnimation(1.0f, 0.0f);
+        animation.setDuration(duration);
+        animation.setRepeatCount(Animation.INFINITE);
+        animation
+                .setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        infoToast.show();
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                        infoToast.show();
+                    }
+                });
+        if (duration == 0 ){
+            //clean animation
+            mRemoteViewContainer.getAnimation().cancel();
+            mRemoteViewContainer.clearAnimation();
+            animation.setAnimationListener(null);
+            animation.setRepeatCount(0);
+            mRemoteViewContainer.setAnimation(null);
+
+        }
+        else {
+            mRemoteViewContainer.startAnimation(animation);
+        }
     }
 
     private void addLogEvent(String action, String variation){
@@ -290,6 +325,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
 
     //cleans views and controls
     private void cleanViewsAndControls() {
+        showInfo(null, 0);
         mPreviewFragment.restartFragment(true);
     }
 
@@ -347,7 +383,9 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     public void onPreviewReady(View preview) {
         mPreviewViewContainer.removeAllViews();
         mProgressBar.setVisibility(View.GONE);
+
         if (preview != null) {
+            showInfo(getResources().getString(R.string.waiting_for_agent_message), WAITING_ANIMATION_DURATION);
             layoutParamsPreview = new RelativeLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
@@ -381,7 +419,10 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
             mRemoteViewContainer.setClickable(false);
         }
         else {
-            //show remote view
+            //clean info animation
+            showInfo(null, 0);
+
+             //show remote view
             RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
                     this.getResources().getDisplayMetrics().widthPixels, this.getResources()
                     .getDisplayMetrics().heightPixels);
