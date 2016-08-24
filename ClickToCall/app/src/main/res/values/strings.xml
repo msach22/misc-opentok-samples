@@ -24,4 +24,7 @@
     <string name="alert_call_disabled">Call</string>
     <string name="alert_call_disabled_text">Video Call is not enabled for this ID.</string>
 
+    <string name="menu_change_id">Change ID</string>
+    <string name="menu_send_feedback">Help and Feedback</string>
+
 </resources>

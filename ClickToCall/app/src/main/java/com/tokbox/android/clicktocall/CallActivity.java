@@ -10,8 +10,11 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -22,6 +25,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.instabug.library.IBGInvocationEvent;
+import com.instabug.library.Instabug;
 import com.tokbox.android.accpack.OneToOneCommunication;
 import com.tokbox.android.clicktocall.config.OpenTokConfig;
 import com.tokbox.android.clicktocall.ui.PreviewCameraFragment;
@@ -61,14 +66,18 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     private Controller mController;
     private String mWidgetId;
 
+    private MenuItem changeIdItem;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(LOGTAG, "onCreate");
+
+        requestWindowFeature(Window.FEATURE_ACTION_BAR);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_call);
-
 
         //Init the analytics logging for internal use
         String source = this.getPackageName();
@@ -143,15 +152,36 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.settings_menu, menu);
+        changeIdItem = menu.getItem(0);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.change_id:
+                changeId();
+                return true;
+            case R.id.send_feedback:
+                sendFeedback();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onOptionsMenuClosed(Menu menu) {
+        showInfo(getResources().getString(R.string.call_message), CALL_ANIMATION_DURATION);
+    }
+
+    @Override
     public void onBackPressed() {
         onCall();
-
-        Intent enterLoginIntent = new Intent(this, LoginActivity.class);
-        enterLoginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        enterLoginIntent.putExtra(OpenTokConfig.ARG_WIDGET_ID, mWidgetId);
-        enterLoginIntent.putExtra(OpenTokConfig.ARG_SHOW_WIDGET_ID_TRUE, true);
-
-        startActivity(enterLoginIntent);
+        changeId();
     }
 
     @Override
@@ -222,18 +252,43 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
                         infoToast.show();
                     }
                 });
-        if (duration == 0 ){
-            //clean animation
-            mRemoteViewContainer.getAnimation().cancel();
-            mRemoteViewContainer.clearAnimation();
-            animation.setAnimationListener(null);
-            animation.setRepeatCount(0);
-            mRemoteViewContainer.setAnimation(null);
 
+        if ( mRemoteViewContainer != null ) {
+            if (duration == 0) {
+                //clean animation
+                if (mRemoteViewContainer.getAnimation() != null) {
+                    mRemoteViewContainer.getAnimation().cancel();
+                    mRemoteViewContainer.clearAnimation();
+                    mRemoteViewContainer.setAnimation(null);
+                }
+                animation.setAnimationListener(null);
+                animation.setRepeatCount(0);
+
+            } else {
+                mRemoteViewContainer.startAnimation(animation);
+            }
         }
-        else {
-            mRemoteViewContainer.startAnimation(animation);
-        }
+    }
+    private void changeId(){
+        addLogEvent(OpenTokConfig.LOG_ACTION_CHANGE_ID, OpenTokConfig.LOG_VARIATION_ATTEMPT);
+
+        Intent enterLoginIntent = new Intent(this, LoginActivity.class);
+        enterLoginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        enterLoginIntent.putExtra(OpenTokConfig.ARG_WIDGET_ID, mWidgetId);
+        enterLoginIntent.putExtra(OpenTokConfig.ARG_SHOW_WIDGET_ID_TRUE, true);
+
+        startActivity(enterLoginIntent);
+
+        addLogEvent(OpenTokConfig.LOG_ACTION_CHANGE_ID, OpenTokConfig.LOG_VARIATION_SUCCESS);
+
+    }
+
+    private void sendFeedback(){
+        addLogEvent(OpenTokConfig.LOG_ACTION_HELP_FEEDBACK, OpenTokConfig.LOG_VARIATION_ATTEMPT);
+        //clean show info
+        showInfo(null, 0);
+        Instabug.invoke();
+        addLogEvent(OpenTokConfig.LOG_ACTION_HELP_FEEDBACK, OpenTokConfig.LOG_VARIATION_SUCCESS);
     }
 
     private void addLogEvent(String action, String variation){
@@ -325,6 +380,8 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
 
     //cleans views and controls
     private void cleanViewsAndControls() {
+        //enable changeID option
+        changeIdItem.setEnabled(true);
         showInfo(null, 0);
         mPreviewFragment.restartFragment(true);
     }
@@ -454,6 +511,9 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
 
         //start call
         mComm.start();
+
+        //disable changeID option
+        changeIdItem.setEnabled(false);
 
         if (mPreviewFragment != null) {
             mPreviewFragment.setEnabled(true);
