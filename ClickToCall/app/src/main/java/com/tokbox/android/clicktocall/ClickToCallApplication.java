@@ -3,7 +3,6 @@ package com.tokbox.android.clicktocall;
 import android.app.Application;
 
 import com.instabug.library.IBGColorTheme;
-import com.instabug.library.IBGCustomTextPlaceHolder;
 import com.instabug.library.IBGInvocationEvent;
 import com.instabug.library.Instabug;
 import com.tokbox.android.clicktocall.config.OpenTokConfig;
