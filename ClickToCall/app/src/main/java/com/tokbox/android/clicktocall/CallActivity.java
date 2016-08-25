@@ -188,7 +188,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
         //Cancel the call alert
         restartCallAlert(false);
 
-        if ( mComm.isStarted() ) {
+        if ( mComm != null && mComm.isStarted() ) {
             onCall(); //end call
         }
         changeId();
