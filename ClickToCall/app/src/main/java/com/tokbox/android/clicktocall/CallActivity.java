@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -24,8 +25,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
-import com.instabug.library.IBGInvocationEvent;
 import com.instabug.library.Instabug;
 import com.tokbox.android.accpack.OneToOneCommunication;
 import com.tokbox.android.clicktocall.config.OpenTokConfig;
@@ -41,8 +40,6 @@ import java.util.UUID;
 public class CallActivity extends AppCompatActivity implements Controller.ControllerListener, OneToOneCommunication.Listener, PreviewControlFragment.PreviewControlCallbacks, RemoteControlFragment.RemoteControlCallbacks, PreviewCameraFragment.PreviewCameraCallbacks {
 
     private final String LOGTAG = CallActivity.class.getSimpleName();
-    private final int CALL_ANIMATION_DURATION = 12000;
-    private final int WAITING_ANIMATION_DURATION = 10000;
 
     private OneToOneCommunication mComm;
 
@@ -54,6 +51,9 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     private TextView mAlert;
     private ImageView mAudioOnlyImage;
     private ProgressBar mProgressBar;
+    private Toast mCallInfoToast;
+    private CountDownTimer mWaitingAgentTimer;
+    private CountDownTimer mCallTimer;
 
     private PreviewControlFragment mPreviewFragment;
     private RemoteControlFragment mRemoteFragment;
@@ -67,6 +67,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     private String mWidgetId;
 
     private MenuItem changeIdItem;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,7 +117,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
             mFragmentTransaction.commitAllowingStateLoss();
         }
 
-        showInfo(getResources().getString(R.string.call_message), CALL_ANIMATION_DURATION);
+        showCallInfo(getResources().getString(R.string.call_message), false);
 
         addLogEvent(OpenTokConfig.LOG_ACTION_LOAD_CALL, OpenTokConfig.LOG_VARIATION_SUCCESS);
 
@@ -160,6 +161,9 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        //Cancel the call alert
+       restartCallAlert(false);
+
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.change_id:
@@ -175,12 +179,18 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
 
     @Override
     public void onOptionsMenuClosed(Menu menu) {
-        showInfo(getResources().getString(R.string.call_message), CALL_ANIMATION_DURATION);
+        //Restart the call alert
+        restartCallAlert(true);
     }
 
     @Override
     public void onBackPressed() {
-        onCall();
+        //Cancel the call alert
+        restartCallAlert(false);
+
+        if ( mComm.isStarted() ) {
+            onCall(); //end call
+        }
         changeId();
     }
 
@@ -195,6 +205,8 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
                 mRemoteViewContainer.removeAllViews();
             }
         }
+
+        restartCallAlert(false);
     }
 
     @Override
@@ -206,6 +218,8 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
 
             mComm.reloadViews();
         }
+
+        restartCallAlert(true);
     }
 
     public OneToOneCommunication getComm() {
@@ -230,43 +244,43 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
                 .add(R.id.camera_preview_fragment_container, mCameraFragment).commit();
     }
 
-    private void showInfo ( final String message, final int duration){
-        final Toast infoToast = Toast.makeText(CallActivity.this, message,
-                Toast.LENGTH_LONG);
-        Animation animation = new AlphaAnimation(1.0f, 0.0f);
-        animation.setDuration(duration);
-        animation.setRepeatCount(Animation.INFINITE);
-        animation
-                .setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-                        infoToast.show();
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-                        infoToast.show();
-                    }
-                });
-
-        if ( mRemoteViewContainer != null ) {
-            if (duration == 0) {
-                //clean animation
-                if (mRemoteViewContainer.getAnimation() != null) {
-                    mRemoteViewContainer.getAnimation().cancel();
-                    mRemoteViewContainer.clearAnimation();
-                    mRemoteViewContainer.setAnimation(null);
-                }
-                animation.setAnimationListener(null);
-                animation.setRepeatCount(0);
-
-            } else {
-                mRemoteViewContainer.startAnimation(animation);
+    private void restartCallAlert(boolean restart){
+        if ( restart ){
+            if ( mComm != null && !mComm.isStarted() ) {
+                showCallInfo(getResources().getString(R.string.call_message), false);
             }
+            else {
+                if ( mComm != null && !mComm.isRemote() ){
+                    showCallInfo(getResources().getString(R.string.waiting_for_agent_message), true);
+                }
+            }
+        }
+        else {
+            if ( mWaitingAgentTimer != null ) {
+                mWaitingAgentTimer.cancel();
+            }
+        }
+    }
+
+    private void showCallInfo(String message, boolean repeat){
+        mCallInfoToast = Toast.makeText(CallActivity.this, message,
+                Toast.LENGTH_LONG);
+
+        mCallInfoToast.show();
+
+        if ( repeat ) {
+            mWaitingAgentTimer = new CountDownTimer(60000, 15000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    mCallInfoToast.show();
+                }
+
+                @Override
+                public void onFinish() {
+                    mCallInfoToast.cancel();
+                }
+            }.start();
+
         }
     }
     private void changeId(){
@@ -286,9 +300,26 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     private void sendFeedback(){
         addLogEvent(OpenTokConfig.LOG_ACTION_HELP_FEEDBACK, OpenTokConfig.LOG_VARIATION_ATTEMPT);
         //clean show info
-        showInfo(null, 0);
+        restartCallAlert(false);
         Instabug.invoke();
         addLogEvent(OpenTokConfig.LOG_ACTION_HELP_FEEDBACK, OpenTokConfig.LOG_VARIATION_SUCCESS);
+    }
+
+    private void startCallTimer(){
+        mCallTimer = new CountDownTimer(60000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+            }
+
+            @Override
+            public void onFinish() {
+                restartCallAlert(false);
+                Toast infoToast = Toast.makeText(CallActivity.this, getResources().getString(R.string.agents_busy),
+                                Toast.LENGTH_LONG);
+                infoToast.show();
+                onCall();
+            }
+        }.start();
     }
 
     private void addLogEvent(String action, String variation){
@@ -315,7 +346,6 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
                     mAudioOnlyImage = new ImageView(this);
                     mAudioOnlyImage.setImageResource(R.drawable.avatar);
                     mAudioOnlyImage.setBackgroundResource(R.drawable.bckg_audio_only);
-                    //mPreviewViewContainer.setBackgroundColor(getResources().getColor(R.color.colorBlue));
                     mPreviewViewContainer.addView(mAudioOnlyImage, layoutParamsPreview);
                 } else {
                     mPreviewViewContainer.removeView(mAudioOnlyImage);
@@ -341,7 +371,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
             addLogEvent(OpenTokConfig.LOG_ACTION_END_COMM, OpenTokConfig.LOG_VARIATION_SUCCESS);
         } else {
             addLogEvent(OpenTokConfig.LOG_ACTION_START_COMM, OpenTokConfig.LOG_VARIATION_ATTEMPT);
-
+            mCallInfoToast.cancel();
             mProgressBar.setVisibility(View.VISIBLE);
             //get credentials
             mController = new Controller(this, this);
@@ -382,7 +412,10 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     private void cleanViewsAndControls() {
         //enable changeID option
         changeIdItem.setEnabled(true);
-        showInfo(null, 0);
+        restartCallAlert(false);
+        if ( mCallTimer != null ) {
+            mCallTimer.cancel();
+        }
         mPreviewFragment.restartFragment(true);
     }
 
@@ -394,7 +427,6 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     //OneToOneCommunication callbacks
     @Override
     public void onError(String error) {
-
         if  (mComm != null ) {
             mComm.end(); //end communication
         }
@@ -442,7 +474,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
         mProgressBar.setVisibility(View.GONE);
 
         if (preview != null) {
-            showInfo(getResources().getString(R.string.waiting_for_agent_message), WAITING_ANIMATION_DURATION);
+            showCallInfo(getResources().getString(R.string.waiting_for_agent_message), true);
             layoutParamsPreview = new RelativeLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
@@ -477,9 +509,9 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
         }
         else {
             //clean info animation
-            showInfo(null, 0);
+            mCallInfoToast.cancel();
 
-             //show remote view
+            //show remote view
             RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
                     this.getResources().getDisplayMetrics().widthPixels, this.getResources()
                     .getDisplayMetrics().heightPixels);
@@ -514,6 +546,8 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
 
         //disable changeID option
         changeIdItem.setEnabled(false);
+
+        startCallTimer();
 
         if (mPreviewFragment != null) {
             mPreviewFragment.setEnabled(true);
