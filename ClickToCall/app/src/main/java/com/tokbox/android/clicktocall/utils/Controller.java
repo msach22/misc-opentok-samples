@@ -64,7 +64,6 @@ public class Controller {
                                         mControllerListener.onCheckedData(true, true);
                                     }
                                     else {
-                                        getErrorAlert(mContext.getResources().getString(R.string.alert_call_disabled), mContext.getResources().getString(R.string.alert_call_disabled_text)).show();
                                         mControllerListener.onCheckedData(true, false);
                                     }
                                 }

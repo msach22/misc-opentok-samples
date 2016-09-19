@@ -2,11 +2,13 @@ package com.tokbox.android.clicktocall;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -50,6 +52,9 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
     private OTKAnalyticsData mAnalyticsData;
     private OTKAnalytics mAnalytics;
 
+    private boolean mVideoEnabled = false;
+    private boolean mAudioPermission = false;
+    private boolean mVideoPermission = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,13 +137,37 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
     }
 
     @Override
-    public void onRequestPermissionsResult(int permsRequestCode, String[] permissions,
+    public void onRequestPermissionsResult(final int permsRequestCode, final String[] permissions,
                                            int[] grantResults) {
         switch (permsRequestCode) {
 
             case 200:
-                boolean video = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                boolean audio = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                mVideoPermission = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                mAudioPermission = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+
+
+                if ( !mVideoPermission && !mAudioPermission ){
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+                    builder.setTitle(getResources().getString(R.string.permissions_denied_title));
+                    builder.setMessage(getResources().getString(R.string.alert_permissions_denied));
+                    builder.setPositiveButton("I'M SURE", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.setNegativeButton("RE-TRY", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                requestPermissions(permissions, permsRequestCode);
+                            }
+                        }
+                    });
+                    builder.show();
+                }
+
                 break;
         }
     }
@@ -147,15 +176,20 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
         mWidgetId = mWidgetIdEditText.getText().toString();
 
         addLogEvent(OpenTokConfig.LOG_ACTION_CONNECT, OpenTokConfig.LOG_VARIATION_ATTEMPT);
-        //Check ID
-        if ( mWidgetId != null && !mWidgetId.isEmpty()) {
-            mController = new Controller(this, this);
-            mController.checkWidgetId(mWidgetId);
-            showSpinning(true);
+        if ( !mVideoPermission && !mAudioPermission ){
+            getToast(R.layout.toast, getResources().getString(R.string.permissions_denied), Gravity.BOTTOM, Toast.LENGTH_LONG, 0, 140).show();
         }
         else {
-            Log.i(LOGTAG, "Widget Id cannot be null or empty");
-            addLogEvent(OpenTokConfig.LOG_ACTION_CONNECT, OpenTokConfig.LOG_VARIATION_ERROR);
+            //Check ID
+            if ( mWidgetId != null && !mWidgetId.isEmpty()) {
+                mController = new Controller(this, this);
+                mController.checkWidgetId(mWidgetId);
+                showSpinning(true);
+            }
+            else {
+                Log.i(LOGTAG, "Widget Id cannot be null or empty");
+                addLogEvent(OpenTokConfig.LOG_ACTION_CONNECT, OpenTokConfig.LOG_VARIATION_ERROR);
+            }
         }
     }
 
@@ -177,8 +211,8 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
     private void enterCall(){
         Intent enterCallIntent = new Intent(this, CallActivity.class);
         enterCallIntent.putExtra(OpenTokConfig.ARG_WIDGET_ID, mWidgetId);
+        enterCallIntent.putExtra(OpenTokConfig.ARG_VIDEO_ENABLED, mVideoEnabled);
         startActivity(enterCallIntent);
-
     }
 
     private void showSpinning(boolean show){
@@ -220,19 +254,15 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
 
     //Controller callbacks
     @Override
-    public void onCheckedData(boolean valid, boolean videoCallEnabled) {
+    public void onCheckedData(boolean valid, boolean videoEnabled) {
         Log.i(LOGTAG, "onCheckedData: ID is "+valid);
         showSpinning(false);
 
         if ( valid ){
-            if ( videoCallEnabled ){
-                addLogEvent(OpenTokConfig.LOG_ACTION_CONNECT, OpenTokConfig.LOG_VARIATION_SUCCESS);
-                saveWidgetData();
-                enterCall();
-            }
-            else {
-                addLogEvent(OpenTokConfig.LOG_ACTION_CONNECT, OpenTokConfig.LOG_VARIATION_ERROR);
-            }
+            addLogEvent(OpenTokConfig.LOG_ACTION_CONNECT, OpenTokConfig.LOG_VARIATION_SUCCESS);
+            mVideoEnabled = videoEnabled;
+            saveWidgetData();
+            enterCall();
         }
         else {
             addLogEvent(OpenTokConfig.LOG_ACTION_CONNECT, OpenTokConfig.LOG_VARIATION_ERROR);

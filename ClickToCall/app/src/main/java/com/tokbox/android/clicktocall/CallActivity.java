@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -66,6 +67,8 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
 
     private MenuItem changeIdItem;
 
+    private boolean mVideoEnabled = false;
+    private boolean mCallStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +100,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
         Uri url = getIntent().getData();
         if (url == null) {
             mWidgetId = getIntent().getStringExtra(OpenTokConfig.ARG_WIDGET_ID);
+            mVideoEnabled = getIntent().getBooleanExtra(OpenTokConfig.ARG_VIDEO_ENABLED, false);
         }
 
         mPreviewViewContainer = (RelativeLayout) findViewById(R.id.publisherview);
@@ -118,7 +122,6 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
         showCallInfo(getResources().getString(R.string.call_message), false);
 
         addLogEvent(OpenTokConfig.LOG_ACTION_LOAD_CALL, OpenTokConfig.LOG_VARIATION_SUCCESS);
-
     }
 
     @Override
@@ -160,7 +163,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //Cancel the call alert
-       restartCallAlert(false);
+        restartCallAlert(false);
 
         // Handle item selection
         switch (item.getItemId()) {
@@ -186,7 +189,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
         //Cancel the call alert
         restartCallAlert(false);
 
-        if ( mComm != null && mComm.isStarted() ) {
+        if (mComm != null && mComm.isStarted()) {
             onCall(); //end call
         }
         changeId();
@@ -242,31 +245,29 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
                 .add(R.id.camera_preview_fragment_container, mCameraFragment).commit();
     }
 
-    private void restartCallAlert(boolean restart){
-        if ( restart ){
-            if ( mComm != null && !mComm.isStarted() ) {
+    private void restartCallAlert(boolean restart) {
+        if (restart) {
+            if (mComm != null && !mComm.isStarted()) {
                 showCallInfo(getResources().getString(R.string.call_message), false);
-            }
-            else {
-                if ( mComm != null && !mComm.isRemote() ){
+            } else {
+                if (mComm != null && !mComm.isRemote()) {
                     showCallInfo(getResources().getString(R.string.waiting_for_agent_message), true);
                 }
             }
-        }
-        else {
-            if ( mWaitingAgentTimer != null ) {
+        } else {
+            if (mWaitingAgentTimer != null) {
                 mWaitingAgentTimer.cancel();
             }
         }
     }
 
-    private void showCallInfo(String message, boolean repeat){
+    private void showCallInfo(String message, boolean repeat) {
         mCallInfoToast = Toast.makeText(CallActivity.this, message,
                 Toast.LENGTH_LONG);
 
         mCallInfoToast.show();
 
-        if ( repeat ) {
+        if (repeat) {
             mWaitingAgentTimer = new CountDownTimer(60000, 15000) {
                 @Override
                 public void onTick(long millisUntilFinished) {
@@ -281,7 +282,20 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
 
         }
     }
-    private void changeId(){
+    private void cleanInfo(){
+        //clean info animation
+        if ( mCallInfoToast != null ) {
+            mCallInfoToast.cancel();
+        }
+        if ( mCallTimer != null ) {
+            mCallTimer.cancel();
+        }
+        if ( mWaitingAgentTimer != null ){
+            mWaitingAgentTimer.cancel();
+        }
+    }
+
+    private void changeId() {
         addLogEvent(OpenTokConfig.LOG_ACTION_CHANGE_ID, OpenTokConfig.LOG_VARIATION_ATTEMPT);
 
         Intent enterLoginIntent = new Intent(this, LoginActivity.class);
@@ -294,8 +308,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
         addLogEvent(OpenTokConfig.LOG_ACTION_CHANGE_ID, OpenTokConfig.LOG_VARIATION_SUCCESS);
 
     }
-
-    private void sendFeedback(){
+    private void sendFeedback() {
         addLogEvent(OpenTokConfig.LOG_ACTION_HELP_FEEDBACK, OpenTokConfig.LOG_VARIATION_ATTEMPT);
         //clean show info
         restartCallAlert(false);
@@ -303,7 +316,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
         addLogEvent(OpenTokConfig.LOG_ACTION_HELP_FEEDBACK, OpenTokConfig.LOG_VARIATION_SUCCESS);
     }
 
-    private void startCallTimer(){
+    private void startCallTimer() {
         mCallTimer = new CountDownTimer(60000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -313,15 +326,15 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
             public void onFinish() {
                 restartCallAlert(false);
                 Toast infoToast = Toast.makeText(CallActivity.this, getResources().getString(R.string.agents_busy),
-                                Toast.LENGTH_LONG);
+                        Toast.LENGTH_LONG);
                 infoToast.show();
                 onCall();
             }
         }.start();
     }
 
-    private void addLogEvent(String action, String variation){
-        if ( mAnalytics!= null ) {
+    private void addLogEvent(String action, String variation) {
+        if (mAnalytics != null) {
             mAnalytics.logEvent(action, variation);
         }
     }
@@ -337,8 +350,10 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     @Override
     public void onDisableLocalVideo(boolean video) {
         if (mComm != null) {
-            mComm.enableLocalMedia(OneToOneCommunication.MediaType.VIDEO, video);
-
+            if (video  && mComm.getCameraId() != Camera.CameraInfo.CAMERA_FACING_BACK )
+            {
+                mComm.swapCamera();
+            }
             if (mComm.isRemote()) {
                 if (!video) {
                     mAudioOnlyImage = new ImageView(this);
@@ -347,6 +362,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
                     mPreviewViewContainer.addView(mAudioOnlyImage, layoutParamsPreview);
                 } else {
                     mPreviewViewContainer.removeView(mAudioOnlyImage);
+                    restartViews();
                 }
             } else {
                 if (!video) {
@@ -357,6 +373,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
                     mPreviewViewContainer.removeView(mLocalAudioOnlyView);
                 }
             }
+            mComm.enableLocalMedia(OneToOneCommunication.MediaType.VIDEO, video);
         }
     }
 
@@ -411,7 +428,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
         //enable changeID option
         changeIdItem.setEnabled(true);
         restartCallAlert(false);
-        if ( mCallTimer != null ) {
+        if (mCallTimer != null) {
             mCallTimer.cancel();
         }
         mPreviewFragment.restartFragment(true);
@@ -425,7 +442,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     //OneToOneCommunication callbacks
     @Override
     public void onError(String error) {
-        if  (mComm != null ) {
+        if (mComm != null) {
             mComm.end(); //end communication
         }
 
@@ -442,6 +459,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     public void onQualityWarning(boolean warning) {
         if (warning) { //quality warning
             mAlert.setBackgroundResource(R.color.quality_warning);
+            mAlert.setTextColor(this.getResources().getColor(R.color.warning_text));
             mAlert.setTextColor(this.getResources().getColor(R.color.warning_text));
         } else { //quality alert
             mAlert.setBackgroundResource(R.color.quality_alert);
@@ -460,19 +478,18 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     public void onAudioOnly(boolean enabled) {
         if (enabled) {
             mAudioOnlyView.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             mAudioOnlyView.setVisibility(View.GONE);
         }
     }
 
     @Override
     public void onPreviewReady(View preview) {
+
         mPreviewViewContainer.removeAllViews();
         mProgressBar.setVisibility(View.GONE);
 
         if (preview != null) {
-            showCallInfo(getResources().getString(R.string.waiting_for_agent_message), true);
             layoutParamsPreview = new RelativeLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
@@ -486,15 +503,25 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
                 layoutParamsPreview.rightMargin = (int) getResources().getDimension(R.dimen.preview_rightMargin);
                 layoutParamsPreview.bottomMargin = (int) getResources().getDimension(R.dimen.preview_bottomMargin);
             }
+            else{
+                if ( !mCallStarted ) {
+                    showCallInfo(getResources().getString(R.string.waiting_for_agent_message), true);
+                }
+            }
             mPreviewViewContainer.addView(preview, layoutParamsPreview);
-            if (!mComm.getLocalVideo()){
+            if (!mComm.getLocalVideo()) {
                 onDisableLocalVideo(false);
             }
+        }
+        else {
+           cleanInfo();
         }
     }
 
     @Override
     public void onRemoteViewReady(View remoteView) {
+        //clean info animation
+        cleanInfo();
         //update preview when a new participant joined to the communication
         if (mPreviewViewContainer.getChildCount() > 0) {
             onPreviewReady(mPreviewViewContainer.getChildAt(0)); //main preview view
@@ -504,10 +531,8 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
             onAudioOnly(false);
             mRemoteViewContainer.removeView(remoteView);
             mRemoteViewContainer.setClickable(false);
-        }
-        else {
-            //clean info animation
-            mCallInfoToast.cancel();
+            mCallStarted = false;
+        } else {
 
             //show remote view
             RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
@@ -516,18 +541,31 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
             mRemoteViewContainer.removeView(remoteView);
             mRemoteViewContainer.addView(remoteView, layoutParams);
             mRemoteViewContainer.setClickable(true);
+            mCallStarted = true;
+        }
+    }
+
+    private void restartViews(){
+        if ( mRemoteViewContainer.getChildCount() > 0 ){
+            //remove remote view
+            View remoteView = mRemoteViewContainer.getChildAt(1);
+            RelativeLayout.LayoutParams remoteParams = (RelativeLayout.LayoutParams) remoteView.getLayoutParams();
+            mRemoteViewContainer.removeViewAt(1);
+
+            //add remoteView again
+            mRemoteViewContainer.addView(remoteView, remoteParams);
         }
     }
 
     //Controller callbacks
     @Override
-    public void onCheckedData(boolean valid, boolean videoCallEnabled) {
+    public void onCheckedData(boolean valid, boolean videoEnabled) {
         Log.i(LOGTAG, "onCheckedData");
     }
 
     @Override
     public void onFetchedData(String sessionId, String token, String apiKey) {
-        Log.i(LOGTAG, "onFetchedData. SessionId: "+sessionId + " .Token: "+token + " .ApiKey: "+apiKey);
+        Log.i(LOGTAG, "onFetchedData. SessionId: " + sessionId + " .Token: " + token + " .ApiKey: " + apiKey);
 
         //update logging with credentials
         mAnalyticsData.setSessionId(sessionId);
@@ -538,6 +576,12 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
 
         //set listener to receive the communication events, and add UI to these events
         mComm.setListener(this);
+
+        //check video
+        if (!this.mVideoEnabled) {
+            mComm.enableLocalMedia(OneToOneCommunication.MediaType.VIDEO, false);
+            mPreviewFragment.updateMediaControls();
+        }
 
         //start call
         mComm.start();
@@ -554,7 +598,18 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
 
     @Override
     public void onControllerError(String error) {
-        Log.i(LOGTAG, "onControllerError: " +error);
+        Log.i(LOGTAG, "onControllerError: " + error);
         mProgressBar.setVisibility(View.GONE);
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
     }
 }

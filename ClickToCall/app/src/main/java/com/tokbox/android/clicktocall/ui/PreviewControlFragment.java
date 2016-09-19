@@ -176,7 +176,7 @@ public class PreviewControlFragment extends Fragment {
                 : R.drawable.initiate_call_button);
     }
 
-    private void updateMediaControls(){
+    public void updateMediaControls(){
         mAudioBtn.setImageResource(mActivity.getComm().getLocalAudio()
                 ? R.drawable.mic_icon
                 : R.drawable.muted_mic_icon);
@@ -208,4 +208,5 @@ public class PreviewControlFragment extends Fragment {
             mCallBtn.setImageResource(R.drawable.start_call);
         }
     }
+
 }

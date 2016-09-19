@@ -27,4 +27,7 @@
     <string name="menu_change_id">Change ID</string>
     <string name="menu_send_feedback">Help and Feedback</string>
 
+    <string name="permissions_denied_title">Permissions Denied</string>
+    <string name="permissions_denied">Cannot use this app without requested permission. Please, grant audio and video permissions</string>
+    <string name="alert_permissions_denied">Without these permissions the app is unable to make call.Are you sure you want to deny these permissions?</string>
 </resources>
