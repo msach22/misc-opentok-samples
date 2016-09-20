@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.hardware.Camera;
+import android.hardware.camera2.CameraCharacteristics;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v4.app.FragmentTransaction;
@@ -70,6 +72,9 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     private boolean mVideoEnabled = false;
     private boolean mCallStarted = false;
 
+    private int mCameraByDefault;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(LOGTAG, "onCreate");
@@ -96,11 +101,19 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
 
         addLogEvent(OpenTokConfig.LOG_ACTION_LOAD_CALL, OpenTokConfig.LOG_VARIATION_ATTEMPT);
 
+        //init camera
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mCameraByDefault = CameraCharacteristics.LENS_FACING_FRONT;
+        }
+        else {
+            mCameraByDefault = Camera.CameraInfo.CAMERA_FACING_FRONT;
+        }
 
         Uri url = getIntent().getData();
         if (url == null) {
             mWidgetId = getIntent().getStringExtra(OpenTokConfig.ARG_WIDGET_ID);
             mVideoEnabled = getIntent().getBooleanExtra(OpenTokConfig.ARG_VIDEO_ENABLED, false);
+            mCameraByDefault = getIntent().getIntExtra(OpenTokConfig.ARG_CAMERA_BY_DEFAULT, 0);
         }
 
         mPreviewViewContainer = (RelativeLayout) findViewById(R.id.publisherview);
@@ -350,7 +363,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
     @Override
     public void onDisableLocalVideo(boolean video) {
         if (mComm != null) {
-            if (video  && mComm.getCameraId() != Camera.CameraInfo.CAMERA_FACING_BACK )
+            if (video  && mComm.getCameraId() != mCameraByDefault )
             {
                 mComm.swapCamera();
             }
@@ -559,7 +572,7 @@ public class CallActivity extends AppCompatActivity implements Controller.Contro
 
     //Controller callbacks
     @Override
-    public void onCheckedData(boolean valid, boolean videoEnabled) {
+    public void onCheckedData(boolean valid, boolean videoEnabled, int cameraByDefault) {
         Log.i(LOGTAG, "onCheckedData");
     }
 

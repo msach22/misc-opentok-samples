@@ -6,8 +6,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.hardware.Camera;
+import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -30,6 +33,7 @@ import com.tokbox.android.clicktocall.utils.Controller;
 import com.tokbox.android.logging.OTKAnalytics;
 import com.tokbox.android.logging.OTKAnalyticsData;
 
+import java.security.Permission;
 import java.util.UUID;
 
 import io.fabric.sdk.android.Fabric;
@@ -53,6 +57,8 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
     private OTKAnalytics mAnalytics;
 
     private boolean mVideoEnabled = false;
+    private int mCameraByDefault; //0
+
     private boolean mAudioPermission = false;
     private boolean mVideoPermission = false;
 
@@ -77,6 +83,14 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
         if (null == guidVSol) {
             guidVSol = UUID.randomUUID().toString();
             prefs.edit().putString("guidVSol", guidVSol).commit();
+        }
+
+        //init camera
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mCameraByDefault = CameraCharacteristics.LENS_FACING_FRONT;
+        }
+        else {
+            mCameraByDefault = Camera.CameraInfo.CAMERA_FACING_FRONT;
         }
 
         mAnalyticsData = new OTKAnalyticsData.Builder(OpenTokConfig.LOG_CLIENT_VERSION, source, OpenTokConfig.LOG_COMPONENTID, guidVSol).build();
@@ -126,9 +140,16 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
                 mWidgetIdEditText.setSelection(mWidgetIdEditText.getText().length());
             }
 
+
             //request Marshmallow camera permission
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(permissions, permsRequestCode);
+            if (ContextCompat.checkSelfPermission(this,permissions[1]) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this,permissions[0]) != PackageManager.PERMISSION_GRANTED){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    requestPermissions(permissions, permsRequestCode);
+                }
+            }
+            else {
+                mVideoPermission = true;
+                mAudioPermission = true;
             }
         }
 
@@ -146,7 +167,7 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
                 mAudioPermission = grantResults[1] == PackageManager.PERMISSION_GRANTED;
 
 
-                if ( !mVideoPermission && !mAudioPermission ){
+                if ( !mVideoPermission || !mAudioPermission ){
                     final AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
                     builder.setTitle(getResources().getString(R.string.permissions_denied_title));
                     builder.setMessage(getResources().getString(R.string.alert_permissions_denied));
@@ -176,7 +197,7 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
         mWidgetId = mWidgetIdEditText.getText().toString();
 
         addLogEvent(OpenTokConfig.LOG_ACTION_CONNECT, OpenTokConfig.LOG_VARIATION_ATTEMPT);
-        if ( !mVideoPermission && !mAudioPermission ){
+        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && (!mVideoPermission || !mAudioPermission) ){
             getToast(R.layout.toast, getResources().getString(R.string.permissions_denied), Gravity.BOTTOM, Toast.LENGTH_LONG, 0, 140).show();
         }
         else {
@@ -212,6 +233,7 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
         Intent enterCallIntent = new Intent(this, CallActivity.class);
         enterCallIntent.putExtra(OpenTokConfig.ARG_WIDGET_ID, mWidgetId);
         enterCallIntent.putExtra(OpenTokConfig.ARG_VIDEO_ENABLED, mVideoEnabled);
+        enterCallIntent.putExtra(OpenTokConfig.ARG_CAMERA_BY_DEFAULT, mCameraByDefault);
         startActivity(enterCallIntent);
     }
 
@@ -254,13 +276,14 @@ public class LoginActivity extends AppCompatActivity implements Controller.Contr
 
     //Controller callbacks
     @Override
-    public void onCheckedData(boolean valid, boolean videoEnabled) {
+    public void onCheckedData(boolean valid, boolean videoEnabled, int cameraByDefault) {
         Log.i(LOGTAG, "onCheckedData: ID is "+valid);
         showSpinning(false);
 
         if ( valid ){
             addLogEvent(OpenTokConfig.LOG_ACTION_CONNECT, OpenTokConfig.LOG_VARIATION_SUCCESS);
             mVideoEnabled = videoEnabled;
+            mCameraByDefault = cameraByDefault;
             saveWidgetData();
             enterCall();
         }

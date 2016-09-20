@@ -2,6 +2,9 @@ package com.tokbox.android.clicktocall.utils;
 
 import android.content.Context;
 import android.app.AlertDialog;
+import android.hardware.Camera;
+import android.hardware.camera2.CameraCharacteristics;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,7 +34,7 @@ public class Controller {
     private RequestQueue mQueue;
 
     public interface ControllerListener{
-        void onCheckedData(boolean valid, boolean videoCallEnabled);
+        void onCheckedData(boolean valid, boolean videoCallEnabled, int cameraByDefault);
         void onFetchedData(String sessionId, String token, String apiKey);
         void onControllerError(String error);
     }
@@ -53,19 +56,33 @@ public class Controller {
                     public void onResponse(JSONObject response) {
                         Log.d(LOGTAG, response.toString());
                         if (response.length() == 0){
-                            mControllerListener.onCheckedData(false, false);
+                            mControllerListener.onCheckedData(false, false, 0);
                         }
                         else {
 
                             try {
                                 if ( response.length() != 0 ) {
                                     boolean enabled = response.getBoolean("videoEnabled");
-                                    if ( enabled ){
-                                        mControllerListener.onCheckedData(true, true);
+                                    boolean backCamera = response.getBoolean("useBackCamera");
+                                    int cameraByDefault;
+                                    if ( !backCamera ){
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                            cameraByDefault = CameraCharacteristics.LENS_FACING_FRONT;
+                                        }
+                                        else {
+                                            cameraByDefault = Camera.CameraInfo.CAMERA_FACING_FRONT;
+                                        }
                                     }
                                     else {
-                                        mControllerListener.onCheckedData(true, false);
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                            cameraByDefault = CameraCharacteristics.LENS_FACING_BACK;
+                                        }
+                                        else {
+                                            cameraByDefault = Camera.CameraInfo.CAMERA_FACING_BACK;
+                                        }
                                     }
+
+                                    mControllerListener.onCheckedData(true, enabled, cameraByDefault);
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
