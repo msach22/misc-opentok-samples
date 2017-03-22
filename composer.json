@@ -1,0 +1,28 @@
+{
+    "name": "opentok/linkkit-php",
+    "description": "An OpenTok 1-to-1 solution focussed on web meetings shared with links",
+    "license": "MIT",
+    "keywords": [
+        "OpenTok",
+        "WebRTC",
+        "video",
+        "realtime",
+        "meeting",
+        "collaboration"
+    ],
+    "homepage": "https://tokbox.com/opentok/starter-kits",
+    "authors": [
+        {
+            "name": "Ankur Oberoi",
+            "email": "aoberoi@gmail.com"
+        }
+    ],
+    "require": {
+        "slim/slim": "2.*",
+        "phpmailer/phpmailer": "5.*",
+        "opentok/opentok": "2.2.x"
+    },
+    "require-dev": {
+      "heroku/heroku-buildpack-php": "*"
+    }
+}
