@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Session Swapping Test</title>
+		<link rel="stylesheet" href="style.css">
+		<script src="http://static.opentok.com/v0.91/js/TB.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+		<script src="config.js"></script>
+		<script src="session-swap.js"></script>
+	</head>
+	<body>
+		<h1>Session Swap Test</h1>
+		<p>In this example, we test moving a publisher from one session to another without removing it from the DOM.</p>
+
+		<p style="text-style:italic;">Note: first copy config.sample.js to config.js and input your API and generated sessions/tokens</p>
+
+		<ol>
+			<li>Connect to either of the sessions below. The publisher will publish to whichever session is connected.</li>
+			<li>Open this URL in another window (or from another machine) and connect to the other session. Nothing has changed yet.</li>
+			<li>Change the session from either of the windows. Now both are connected to the same session and should be subscribing to each other.</li>
+		</ol>
+
+		<div>
+			<h2>Publisher</h2>
+			<div id="pubContainer"></div>
+		</div>
+
+		<div id="session1">
+			<h2>Session 1</h2>
+			<button class="startBtn 1">Connect &amp; Publish</button>
+			<p>Status: <span class="status disconnected">disconnected</span></p>
+			<h3>Subscribers:</h3>
+			<div class="subContainer"></div>
+		</div>
+
+		<div id="session2">
+			<h2>Session 2</h2>
+			<button class="startBtn 2">Connect &amp; Publish</button>
+			<p>Status: <span class="status disconnected">disconnected</span></p>
+			<h3>Subscribers:</h3>
+			<div class="subContainer"></div>
+		</div>
+	</body>
+</html>
