@@ -1,0 +1,22 @@
+{
+  "name": "application-name",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "engines": {
+    "node": "0.10.x",
+    "npm": "1.2.x"
+  },
+  "dependencies": {
+    "express": "3.3.4",
+    "jade": "*",
+    "irc": "~0.3.6",
+    "underscore": "~1.5.2",
+    "validator": "~1.5.1",
+    "request": "~2.27.0",
+    "mandrill-api": "~1.0.37",
+    "async": "~0.2.9"
+  }
+}
