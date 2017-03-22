@@ -1,0 +1,15 @@
+<?php
+/* -----------------------------------------------------------------------------------------------
+ * OpenTok Development Configuration (Sample)
+ *
+ * This file is meant to be copied without the ".sample" file extension but in the same directory.
+ * After copying, replace the values below with your own API Key and API Secret from the TokBox
+ * Dashboard (https://dashboard.tokbox.com). Also, use the Project Tools in the Dashboard to
+ * generate a relayed session and use it to fill in the 'presenceSession' value below.
+ * -----------------------------------------------------------------------------------------------*/
+
+return array(
+    'key' => 000000,
+    'secret' => 'abcdef1234567890abcdef',
+    'presenceSession' => '...'
+);

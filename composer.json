@@ -1,0 +1,28 @@
+{
+    "name": "opentok/presencekit-php",
+    "description": "An example OpenTok 1to1 application with Presence",
+    "license": "MIT",
+    "keywords": [
+      "OpenTok",
+      "WebRTC",
+      "video",
+      "presence",
+      "realtime"
+    ],
+    "homepage": "https://tokbox.com/opentok/starter-kits",
+    "authors": [
+        {
+            "name": "Ankur Oberoi",
+            "email": "aoberoi@gmail.com"
+        }
+    ],
+    "require": {
+        "opentok/opentok": "2.2.*",
+        "slim/slim": "2.*",
+        "werx/config": "1.*",
+        "php": ">=5.3.2"
+    },
+    "require-dev": {
+        "heroku/heroku-buildpack-php": "*"
+    }
+}
