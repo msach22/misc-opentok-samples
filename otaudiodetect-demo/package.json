@@ -1,0 +1,28 @@
+{
+  "name": "webrtcexpo14-audiodetection",
+  "version": "0.0.0",
+  "description": "",
+  "homepage": "",
+  "bugs": "",
+  "keywords": [],
+  "contributors": [
+    "John Doe <johndoe@example.org>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "dependencies": {
+    "ejs": "^1.0.0",
+    "express": "^4.4.1",
+    "opentok": "^2.2.2"
+  },
+  "devDependencies": {
+    "gulp": "~3.6.0",
+    "pho-devstack": "~1.2.0",
+    "node.extend": "~1.0.10"
+  },
+  "script": {
+    "start": "gulp & open dist/index.html"
+  }
+}

@@ -1,2 +1,12 @@
+<<<<<<< HEAD
 node_modules/
 .DS_Store
+=======
+.DS_Store
+Thumbs.db
+
+node_modules
+src/bower_components
+config.js
+*.swp
+>>>>>>> otaudiodetect-demo/master

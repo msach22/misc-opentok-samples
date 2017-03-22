@@ -1,0 +1,35 @@
+{
+  "name": "opentok-whiteboard",
+  "version": "0.1.1",
+  "authors": [
+    "Adam Ullman <adam@tokbox.com>"
+  ],
+  "description": "Shared Whiteboard that works with OpenTok",
+  "keywords": [
+    "opentok",
+    "webrtc",
+    "whiteboard"
+  ],
+  "license": "MIT",
+  "homepage": "http://github.com/aullman/opentok-whiteboard",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "opentok-angular": "~0.2.0"
+  },
+  "_release": "0.1.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.1.1",
+    "commit": "bca14c5c39518578b3c381d47af83b1717ea2e7a"
+  },
+  "_source": "git://github.com/aullman/opentok-whiteboard.git",
+  "_target": "~0.1.1",
+  "_originalSource": "opentok-whiteboard",
+  "_direct": true
+}

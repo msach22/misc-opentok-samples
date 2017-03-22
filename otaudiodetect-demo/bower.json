@@ -1,0 +1,12 @@
+{
+  "name": "webrtcexpo14-audiodetection",
+  "version": "0.0.0",
+  "dependencies": {
+    "angular": "~1.2.9",
+    "lesshat": "~3.0.0",
+    "opentok-angular": "~0.2.3",
+    "opentok-layout-js": "aoberoi/opentok-layout-js#0.0.12",
+    "jquery": "~2.1.1",
+    "opentok-whiteboard": "~0.1.1"
+  }
+}
