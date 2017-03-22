@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">ClickToCall</string>
+
+    <string name="input_clicktocall_id">Enter ID</string>
+    <string name="btn_connect">Connect with a Support Agent</string>
+
+    <string name="description">ClickToCall Demo</string>
+    <string name="author">Powered by OpenTok</string>
+
+    <string name="network_quality">Network connection is unstable.</string>
+
+    <string name="call_message">Tap the call button below to start the meeting, your support agent will connect shortly.</string>
+    <string name="waiting_for_agent_message">Your support agent has been contacted and will connect soon.</string>
+    <string name="agents_busy">All our agents are busy now, please try again later</string>
+    <string name="alert_invalid_id">The ClickToCall ID is not valid</string>
+
+    <string name="alert_connect_error">Error</string>
+    <string name="alert_connect_error_text">Unable to connect. There may be a problem with the network. Please, check your network connection and try again.</string>
+    <string name="alert_button">OK</string>
+
+    <string name="alert_call_error">Unexpected Error</string>
+    <string name="alert_call_error_text">An error occurred during call. Please, try again.</string>
+
+    <string name="alert_call_disabled">Call</string>
+    <string name="alert_call_disabled_text">Video Call is not enabled for this ID.</string>
+
+    <string name="menu_change_id">Change ID</string>
+    <string name="menu_send_feedback">Help and Feedback</string>
+
+    <string name="permissions_denied_title">Permissions Denied</string>
+    <string name="permissions_denied">Cannot use this app without requested permission. Please, grant audio and video permissions</string>
+    <string name="alert_permissions_denied">Without these permissions the app is unable to make call.Are you sure you want to deny these permissions?</string>
+</resources>
