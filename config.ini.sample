@@ -1,0 +1,9 @@
+; This is a sample configuration file
+; Comments start with ';', as in php.ini
+; For MYSQL_URL, change localhost, 3306, and schedulekit to the domain, port, and database name of your choice of you are not using the default values
+
+GMAIL_USER = 'your gmail username to send email'
+GMAIL_PW ='your gmail password used to deliver email'
+MYSQL_URL = 'mysql://username:password@localhost:3306/schedulekit'
+OPENTOK_KEY = 'OpenTokKey'
+OPENTOK_SECRET ='OpenTokSecret'

@@ -1,0 +1,32 @@
+{
+    "name": "opentok/schedulekit-php",
+    "description": "An OpenTok Starter Kit focussed on call scheduling",
+    "license": "MIT",
+    "keywords": [
+      "OpenTok",
+      "WebRTC",
+      "video",
+      "chat",
+      "realtime",
+      "support",
+      "scheduled",
+      "appointment"
+    ],
+    "homepage": "https://tokbox.com/opentok/starter-kits",
+    "authors" : [
+        {
+            "name": "Ankur Oberoi",
+            "email": "aoberoi@gmail.com"
+        }
+    ],
+    "require": {
+        "slim/slim": "2.*",
+        "phpmailer/phpmailer": "5.*",
+        "sendgrid/sendgrid": "~3.2",
+        "opentok/opentok": "2.2.x",
+        "php": ">=5.3.2"
+    },
+    "require-dev": {
+      "heroku/heroku-buildpack-php": "*"
+    }
+}
