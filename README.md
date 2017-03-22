@@ -3,9 +3,9 @@ Various samples and demos using OpenTok. Most of these are out-of-date.
 
 To view all commits for a specific subdirectory, use the links below:
 
-[click-to-call-android](https://github.com/kmoulder/misc-opentok-samples/tree/f625d1dafc7c2d03dc8bec272e4450e002266171)
+[click-to-call-android](https://github.com/kmoulder/misc-opentok-samples/commits/f625d1dafc7c2d03dc8bec272e4450e002266171)
 
-[servicekit-php](https://github.com/kmoulder/misc-opentok-samples/tree/cf2d69e5a5f99e978e37cacfcc66353457736bb1)
+[servicekit-php](https://github.com/kmoulder/misc-opentok-samples/commits/cf2d69e5a5f99e978e37cacfcc66353457736bb1)
 
 [schedulekit-php](https://github.com/kmoulder/misc-opentok-samples/commits/bd3418e2f84bd82a1db350b1d0b9cd176115b028)
 
