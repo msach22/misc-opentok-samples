@@ -1,0 +1,120 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/custom.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <script src='//static.opentok.com/webrtc/v2.2/js/opentok.min.js'></script>
+    </head>
+    <body>
+
+        <div class=container id="maincontainer">
+            <div id="publishcontrols" style="display: none">
+                <div class="form-group">
+                    <select id="resolutionselect" class="btn">
+                        <option value="1280x720">1280x720</option>
+                        <option value="640x480">640x480</option>
+                        <option value="320x240">320x240</option>
+                    </select>
+
+                    <select id="fpsselect" class="btn">
+                        <option value="30">30fps</option>
+                        <option value="15">15fps</option>
+                        <option value="7">7fps</option>
+                    </select>
+                    <input id="publishbutton" type="button" value="Publish" class="btn btn-default btn-publish" onclick="publish()">
+                </div>
+            </div>
+            <div id="publishercontrols" style="display: none">
+                <input id="toggleaudio" type="button" value="Toggle audio" class="btn btn-default" onclick="toggleAudio()">
+                <input id="togglevideo" type="button" value="Toggle video" class="btn btn-default" onclick="toggleVideo()">
+            </div>
+            <div id="notconnected">Connecting to session</div>
+        </div>
+
+
+
+        <script>
+            var apiKey = '27086612';
+            var sessionId = '1_MX4yNzA4NjYxMn5-MTQ0MzczMzgxNjI1NH4vdDFDb2x3ZjZ1WDcybGtlakRkOEhDTDh-fg';
+            var token = 'T1==cGFydG5lcl9pZD0yNzA4NjYxMiZzaWc9NjgyZjlkYzJmMjZlMWZhMTAxMzUxOWEwYjM1OGZjMThkNTcyMzY5ODpyb2xlPXB1Ymxpc2hlciZzZXNzaW9uX2lkPTFfTVg0eU56QTROall4TW41LU1UUTBNemN6TXpneE5qSTFOSDR2ZERGRGIyeDNaaloxV0RjeWJHdGxha1JrT0VoRFREaC1mZyZjcmVhdGVfdGltZT0xNDQzNzMzODQyJm5vbmNlPTAuMTgyMDUwMTM0MTEwNDU2NjcmZXhwaXJlX3RpbWU9MTQ0NjMyNTgwOSZjb25uZWN0aW9uX2RhdGE9';
+            var session = OT.initSession(apiKey, sessionId);
+            $( document ).ready(function() {
+                connect();
+            });
+
+            function connect() {
+
+                session.connect(token, function(error) {
+                    if (error) {
+                        console.log(error.message);
+                    } else {
+                        $('#notconnected').hide();
+                        $('#publishcontrols').show();
+                    }
+                });
+            }
+
+            var publisher = null;
+
+            function initAndPublish(width, height, fps) {
+                var resolution = width + "x" + height;
+                var constrains = {resolution: resolution, width: width, height:height, frameRate: fps};
+                console.log(constrains);
+                var div = document.createElement('div');
+                $('#maincontainer').append(div);
+                publisher = OT.initPublisher(div, constrains);
+                publisher.on('streamCreated', function(event) {
+                    console.log('Frame rate: ' + event.stream.frameRate);
+                });
+                session.publish(publisher, function(error) {
+                    if (error) {
+                        console.log(error);
+                    } else {
+                        $('#publishercontrols').show();
+                    }
+                });
+            }
+
+            function publish() {
+                var res  = $( "#resolutionselect" ).val();
+                var fps  = parseInt($( "#fpsselect" ).val());
+                var width, height;
+                if (res === "1280x720") {
+                    width = 1280;
+                    height = 720;
+                } else if (res === "640x480") {
+                    width = 640;
+                    height = 480;
+                } else {
+                    width = 320;
+                    height = 240;
+                }
+                if (publisher != null) {
+                    console.log("Destroying publisher");
+                    publisher.stream.on('destroyed', function() {
+                        console.log("Publisher destroyed");
+                        initAndPublish(width, height, fps);
+
+                    });
+                    publisher.destroy();
+                } else {
+                    initAndPublish(width, height, fps);
+                }
+            }
+
+            var audioOn = true;
+            function toggleAudio() {
+                audioOn = !audioOn;
+                publisher.publishAudio(audioOn);
+            }
+
+            var videoOn = true;
+            function toggleVideo() {
+                videoOn = !videoOn;
+                publisher.publishVideo(videoOn);
+            }
+
+        </script>
+    </body>
+</html>

@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <title>Multiparty best practices</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    </head>
+    <body>
+        <div>
+        <input type="button" value="New subscriber" onclick="newSub();" />
+        </div>
+
+        <div id="subscribers">
+        </div>
+
+        <script>
+            function newSub() {
+                 $('<iframe />');  // Create an iframe element
+                    $('<iframe />', {
+                        src: 'subiframe.html',
+                        style: 'height: 600px; width:600px'
+                    }).appendTo($('#subscribers'));
+            }
+
+        </script>
+    </body>
+</html>

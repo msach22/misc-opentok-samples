@@ -1,0 +1,225 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Multiparty best practices</title>
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/custom.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <script src='//static.opentok.com/webrtc/v2.2/js/opentok.min.js'></script>
+    </head>
+    <body>
+        <div class="container" id="maincontainer">
+
+            <div class="buttonBar" id="mybuttons" style="display: none">
+
+                <input type="button" value="Toggle video reception" class="btn btn-default" onclick="toggleVideo();" />
+                <input type="button" value="Toggle audio reception" class="btn btn-default" onclick="toggleAudio();" />
+                <input type="button" value="Toggle restricted frame rate" class="btn btn-default" onclick="toggleRestrictFrameRate();" />
+
+                <div class="btn-group">
+                    <input type="button" id="streamprio_hd_30" value="1280x720@30fps" class="btn btn-default" disabled/>
+                    <input type="button" id="streamprio_vga_30" value="640x480@30fps" class="btn btn-default" disabled/>
+                    <input type="button" id="streamprio_qvga_30" value="320x240@30fps" class="btn btn-default" disabled/>
+                    <input type="button" id="streamprio_qvga_7" value="320x240@7fps" class="btn btn-default" disabled/>
+                    <!--    <input type="button" id="streamprio_auto" value="Automatic selection" disabled/> -->
+                </div>
+            </div>
+            <div id="stats" style="display: none">
+                <p>Video resolution: <span id="videoresolution">1x1</span> <br>
+                    Video bitrate (Kbps) <span id="videobitrate">0</span> <br>
+                    Audio bitrate (Kbps) <span id="audiobitrate">0</span> <br>
+                    Total bitrate (Kbps) <span id="totalbitrate">0</span> </p>
+            </div>
+        </div>
+
+
+
+        <script>
+            var apiKey = '27086612';
+            var sessionId = '1_MX4yNzA4NjYxMn5-MTQ0MzczMzgxNjI1NH4vdDFDb2x3ZjZ1WDcybGtlakRkOEhDTDh-fg';
+            var token = 'T1==cGFydG5lcl9pZD0yNzA4NjYxMiZzaWc9M2Y0YTk5OTU2YjEzNGZjYjI1NWIwMmIzOTFlNDY4OGExM2ZiMGFjMzpyb2xlPXN1YnNjcmliZXImc2Vzc2lvbl9pZD0xX01YNHlOekE0TmpZeE1uNS1NVFEwTXpjek16Z3hOakkxTkg0dmRERkRiMngzWmpaMVdEY3liR3RsYWtSa09FaERURGgtZmcmY3JlYXRlX3RpbWU9MTQ0MzczMzg2NiZub25jZT0wLjEyOTQxNDcwOTE1MDUyMjEmZXhwaXJlX3RpbWU9MTQ0NjMyNTgwOSZjb25uZWN0aW9uX2RhdGE9';
+
+            var subscriber;
+
+            $( document ).ready(function() {
+                connectSession();
+            });
+
+
+            // Stream prioritization
+            $('#streamprio_hd_30').click(function() {
+                subscriber.setPreferredResolution({width: 1280, height: 720});
+                subscriber.setPreferredFrameRate(30.0);
+            });
+
+            $('#streamprio_vga_30').click(function() {
+                subscriber.setPreferredResolution({width: 640, height: 480});
+                subscriber.setPreferredFrameRate(30.0);
+            });
+
+            $('#streamprio_qvga_30').click(function() {
+                subscriber.setPreferredResolution({width: 10, height: 10});
+                subscriber.setPreferredFrameRate(30.0);
+            });
+
+            $('#streamprio_qvga_7').click(function() {
+                subscriber.setPreferredResolution({width: 10, height: 10});
+                subscriber.setPreferredFrameRate(7.0);
+            });
+
+            $('#streamprio_auto').click(function() {
+                subscriber.setPreferredResolution({width: -1, height: -1});
+                subscriber.setPreferredFrameRate(-1);
+            });
+
+            var myInterval = null;
+
+            var lastVideoBytes = 0;
+            var lastAudioBytes = 0;
+            var lastTime = Date.now();
+
+            function paintStats(videoBps, audioBps, w, h) {
+                var totalBps = videoBps + audioBps;
+                //console.log(videoBps + " " + audioBps);
+                //console.log(w + " " + h);
+                $('#videoresolution').text(w + "x" + h);
+                $('#videobitrate').text(videoBps.toFixed(1) + "");
+                $('#audiobitrate').text(audioBps.toFixed(1) + "");
+                $('#totalbitrate').text(totalBps.toFixed(1) + "");
+            }
+
+            function updateStats(mysubscriber) {
+
+                mysubscriber.getStats(function(err, stats) {
+                    if (err) {
+                        console.error(err);
+                        return;
+                    }
+                    //console.log(stats);
+                    //console.log(mysubscriber.stream.videoDimensions);
+
+                   // console.log(mysubscriber.videoWidth());
+                    var intervalVideoBytes = 0;
+                    var intervalAudioBytes = 0;
+
+                    if (stats.video && stats.video.bytesReceived) {
+                        intervalVideoBytes = stats.video.bytesReceived - lastVideoBytes;
+                        lastVideoBytes = stats.video.bytesReceived;
+                    }
+                    if (stats.audio && stats.audio.bytesReceived) {
+                        intervalAudioBytes = stats.audio.bytesReceived - lastAudioBytes;
+                        lastAudioBytes = stats.audio.bytesReceived;
+                    }
+
+                    var currentTime = Date.now();
+                    var interval = currentTime - lastTime;
+                    if (interval == 0) interval+= 0.01;
+                    lastTime = currentTime;
+
+                    var videoBps = (intervalVideoBytes * 8) / interval;
+                    var audioBps = (intervalAudioBytes * 8) / interval;
+
+                    var w = mysubscriber.videoWidth();
+                    var h = mysubscriber.videoHeight();
+                    paintStats(videoBps, audioBps, w, h);
+                });
+            }
+
+            function resizeWidget(mysubscriber, myDivElement) {
+                var w = mysubscriber.videoWidth();
+                var h = mysubscriber.videoHeight();
+                if (w > 0 && h > 0) {
+                    myDivElement.style.width = w + "px";
+                    myDivElement.style.height = h + "px";
+                }
+            }
+
+            var connectSession = function () {
+                var session = OT.initSession(apiKey, sessionId);
+
+                session.on({
+                    streamCreated: function(event) {
+                        console.log("stream created");
+                        var div = document.createElement('div');
+                        $('#maincontainer').append(div);
+                        subscriber = session.subscribe(event.stream, div, {insertMode: 'append'}, function(err) {
+                            if (err) {
+                                return;
+                            }
+                            if (myInterval == null) {
+                            // Query the stats
+                            myInterval = setInterval(function(){
+                                updateStats(subscriber);
+                                resizeWidget(subscriber, div.childNodes[0]);
+                            }, 2000);
+                        }
+
+                        });
+                        var width = event.stream.videoDimensions.width;
+
+                        if (width > 640) {
+                            $('#streamprio_hd_30').prop('disabled', false);
+                        }
+                        if (width > 320) {
+                            $('#streamprio_vga_30').prop('disabled', false);
+                        }
+                        $('#streamprio_qvga_30').prop('disabled', false);
+                        $('#streamprio_qvga_7').prop('disabled', false);
+                        $('#streamprio_auto').prop('disabled', false);
+
+
+
+                    }
+                });
+
+                session.on({
+                    streamDestroyed: function(event) {
+                        console.log("stream destroyed");
+                        if (myInterval != null) {
+                            console.log("Clearing interval");
+                            clearInterval(myInterval);
+                            lastVideoBytes = 0;
+                            lastAudioBytes = 0;
+                            paintStats(0, 0);
+                            myInterval = null;
+                        }
+                        $('#streamprio_hd_30').prop('disabled', true);
+                        $('#streamprio_vga_30').prop('disabled', true);
+                        $('#streamprio_qvga_30').prop('disabled', true);
+                        $('#streamprio_qvga_7').prop('disabled', true);
+                        $('#streamprio_auto').prop('disabled', true);
+                    }});
+
+                session.connect(token, function (error) {
+                    if(error) {
+                        // failed to connect
+                    } else {
+                        $("#mybuttons").show();
+                        $("#stats").show();
+                    }
+                });
+            }
+
+
+            var restrictedFrameRateOn = true;
+            function toggleRestrictFrameRate() {
+                subscriber.restrictFrameRate(restrictedFrameRateOn);
+                restrictedFrameRateOn = !restrictedFrameRateOn;
+            }
+
+            var videoOn = false;
+            function toggleVideo() {
+                subscriber.subscribeToVideo(videoOn);
+                videoOn = !videoOn;
+            }
+
+            var audioOn = false;
+            function toggleAudio() {
+                subscriber.subscribeToAudio(audioOn);
+                audioOn = !audioOn;
+            }
+
+        </script>
+    </body>
+</html>
